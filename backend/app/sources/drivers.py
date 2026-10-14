@@ -19,6 +19,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from .ats import ats_presets, fetch_ats
+from .hackernews import fetch_hackernews
 from .http import http_get
 from .selector_scraper import scrape_listing
 
@@ -31,10 +33,11 @@ class SourceResult:
     records: list[dict[str, Any]] = field(default_factory=list)
     error: str | None = None
     duration_ms: int = 0
+    companies: list[dict[str, Any]] = field(default_factory=list)
 
 
 def load_presets() -> list[dict[str, Any]]:
-    return json.loads(PRESETS_PATH.read_text(encoding="utf-8"))
+    return [*json.loads(PRESETS_PATH.read_text(encoding="utf-8")), *ats_presets()]
 
 
 def _custom_sources(config: Any) -> list[dict[str, Any]]:
@@ -80,8 +83,37 @@ def _http_get(url: str, timeout: int | None = None) -> Any:
     return http_get(url, timeout=timeout)
 
 
+def _first(item: dict[str, Any], *keys: str) -> Any:
+    for key in keys:
+        value = item.get(key)
+        if value not in (None, "", []):
+            return value
+    return None
+
+
+def _salary_text(item: dict[str, Any]) -> str | None:
+    text = _first(item, "salary", "salary_text")
+    if text:
+        return str(text)
+    low = _first(item, "salaryMin", "minSalary")
+    high = _first(item, "salaryMax", "maxSalary")
+    if not low and not high:
+        return None
+    currency = _first(item, "salaryCurrency", "currency") or ""
+    period = _first(item, "salaryPeriod") or ""
+    amount = f"{low}–{high}" if low and high else str(low or high)
+    return " ".join(part for part in (str(currency), amount, str(period)) if part)
+
+
+def _remote_flag(source: dict[str, Any], item: dict[str, Any]) -> bool | None:
+    if source.get("allRemote"):
+        return True
+    flag = item.get("remote")
+    return flag if isinstance(flag, bool) else None
+
+
 def _fetch_json(source: dict[str, Any]) -> list[dict[str, Any]]:
-    """JSON API source: RemoteOK (array), Remotive ({jobs: [...]}), etc."""
+    """JSON API boards. Field names vary per board, so each field tries the known spellings."""
     response = _http_get(source["startUrl"], source.get("timeout"))
     if response.status >= 400:
         raise RuntimeError(f"HTTP {response.status}")
@@ -99,20 +131,22 @@ def _fetch_json(source: dict[str, Any]) -> list[dict[str, Any]]:
     for item in jobs:
         if not isinstance(item, dict):
             continue
-        url = item.get("url") or item.get("apply_url") or item.get("link") or ""
+        url = _first(item, "url", "apply_url", "link", "guid") or ""
+        restrictions = item.get("locationRestrictions")
         records.append(
             {
                 "source": source["id"],
-                "title": item.get("position") or item.get("title") or item.get("name"),
-                "company": item.get("company") or item.get("company_name"),
+                "title": _first(item, "position", "title", "name", "jobTitle"),
+                "company": _first(item, "company", "company_name", "companyName"),
                 "url": url,
-                "apply_url": item.get("apply_url") or item.get("application_url") or url,
-                "location": item.get("location") or item.get("candidate_required_location") or item.get("city"),
-                "description": item.get("description") or item.get("content"),
-                "salary": item.get("salary") or item.get("salary_text"),
-                "date": item.get("date") or item.get("publication_date") or item.get("created_at"),
+                "apply_url": _first(item, "apply_url", "application_url", "applicationLink") or url,
+                "location": _first(item, "location", "candidate_required_location", "jobGeo", "city"),
+                "description": _first(item, "description", "content", "jobDescription"),
+                "salary": _salary_text(item),
+                "date": _first(item, "date", "publication_date", "created_at", "pubDate", "pub_date", "publishedAt", "epoch"),
                 "tags": item.get("tags"),
-                "remote": item.get("remote") or ("remote" in str(item.get("job_type", "")).lower()),
+                "remote": _remote_flag(source, item),
+                "region_restrictions": restrictions if isinstance(restrictions, list) and restrictions else None,
             }
         )
     return records
@@ -153,6 +187,7 @@ def _fetch_rss(source: dict[str, Any]) -> list[dict[str, Any]]:
                 "apply_url": link,
                 "description": description,
                 "date": pub_date,
+                "remote": True if source.get("allRemote") else None,
             }
         )
     return records
@@ -162,15 +197,25 @@ def fetch_source(source: dict[str, Any], config: Any) -> SourceResult:
     """Fetch one source and return raw records (or the error). Never raises."""
     source_id = source["id"]
     t0 = time.perf_counter()
+    companies: list[dict[str, Any]] = []
     try:
         kind = source.get("type", "selector")
         if kind == "api":
             records = _fetch_json(source)
         elif kind == "rss":
             records = _fetch_rss(source)
+        elif kind == "ats":
+            records, companies = fetch_ats(source, config)
+        elif kind == "hn":
+            records = fetch_hackernews(source)
         else:
             records = scrape_listing(source)
-        return SourceResult(source_id, records=records, duration_ms=int((time.perf_counter() - t0) * 1000))
+        return SourceResult(
+            source_id,
+            records=records,
+            duration_ms=int((time.perf_counter() - t0) * 1000),
+            companies=companies,
+        )
     except Exception as exc:
         return SourceResult(
             source_id,

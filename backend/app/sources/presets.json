@@ -7,6 +7,7 @@
     "type": "api",
     "startUrl": "https://remoteok.com/api",
     "timeout": 30,
+    "allRemote": true,
     "defaultEnabled": true
   },
   {
@@ -17,6 +18,7 @@
     "type": "api",
     "startUrl": "https://remotive.com/api/remote-jobs?limit=100",
     "timeout": 30,
+    "allRemote": true,
     "defaultEnabled": true
   },
   {
@@ -26,6 +28,59 @@
     "kind": "board",
     "type": "rss",
     "startUrl": "https://weworkremotely.com/remote-jobs.rss",
+    "timeout": 30,
+    "allRemote": true,
+    "defaultEnabled": true
+  },
+  {
+    "id": "himalayas",
+    "name": "Himalayas",
+    "tier": "A",
+    "kind": "board",
+    "type": "api",
+    "startUrl": "https://himalayas.app/jobs/api?limit=100",
+    "timeout": 30,
+    "allRemote": true,
+    "defaultEnabled": true
+  },
+  {
+    "id": "jobicy",
+    "name": "Jobicy",
+    "tier": "A",
+    "kind": "board",
+    "type": "api",
+    "startUrl": "https://jobicy.com/api/v2/remote-jobs?count=50",
+    "timeout": 30,
+    "allRemote": true,
+    "defaultEnabled": true
+  },
+  {
+    "id": "workingnomads",
+    "name": "Working Nomads",
+    "tier": "A",
+    "kind": "board",
+    "type": "api",
+    "startUrl": "https://www.workingnomads.com/api/exposed_jobs/",
+    "timeout": 30,
+    "allRemote": true,
+    "defaultEnabled": true
+  },
+  {
+    "id": "arbeitnow",
+    "name": "Arbeitnow",
+    "tier": "A",
+    "kind": "board",
+    "type": "api",
+    "startUrl": "https://www.arbeitnow.com/api/job-board-api",
+    "timeout": 30,
+    "defaultEnabled": true
+  },
+  {
+    "id": "hackernews",
+    "name": "HN: Who is hiring",
+    "tier": "A",
+    "kind": "board",
+    "type": "hn",
     "timeout": 30,
     "defaultEnabled": true
   }

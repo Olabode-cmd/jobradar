@@ -150,16 +150,15 @@ def to_iso(value: Any) -> str | None:
         except (OverflowError, OSError, ValueError):
             return None
     parsed = parse_datetime(str(value))
-    return parsed.isoformat() if parsed else None
+    return parsed.astimezone(UTC).isoformat() if parsed else None
 
 
 def infer_remote(raw: dict[str, Any]) -> bool | None:
     """Remote flag: driver says so, or the text suggests it."""
     if raw.get("remote") is not None:
         return bool(raw.get("remote"))
-    text = " ".join(
-        str(raw.get(k) or "") for k in ("location", "title", "tags", "description")
-    ).lower()
+    # Descriptions are deliberately excluded: nearly every posting mentions "remote" somewhere.
+    text = " ".join(str(raw.get(k) or "") for k in ("location", "title", "tags")).lower()
     if "remote" in text:
         return True
     return None

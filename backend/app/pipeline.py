@@ -147,6 +147,20 @@ def _record_source_state(conn: Any, source_id: str, status: str, error: str | No
     conn.commit()
 
 
+def _record_company_states(conn: Any, companies: list[dict[str, Any]], now: str) -> None:
+    for company in companies:
+        conn.execute(
+            """INSERT INTO company_state (company_key, last_checked_at, last_error, open_roles)
+               VALUES (?, ?, ?, ?)
+               ON CONFLICT(company_key) DO UPDATE SET
+                 last_checked_at = excluded.last_checked_at,
+                 last_error = excluded.last_error,
+                 open_roles = CASE WHEN excluded.last_error IS NULL THEN excluded.open_roles ELSE open_roles END""",
+            (company["key"], now, company["error"], company["open_roles"]),
+        )
+    conn.commit()
+
+
 def process_batch(
     conn: Any,
     records: list[dict[str, Any]],
@@ -272,6 +286,7 @@ def execute_run(
                         stats["error"] = f"{type(exc).__name__}: {exc}"
 
                 per_source[source["id"]] = stats
+                _record_company_states(conn, result.companies, _now())
                 _record_source_state(conn, source["id"], "error" if stats["error"] else "ok", stats["error"], _now())
                 report(source["id"], state="error" if stats["error"] else "ok", **stats)
 
