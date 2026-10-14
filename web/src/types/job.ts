@@ -33,10 +33,15 @@ export interface SourceLink {
   url: string;
 }
 
+export interface ContactEmail {
+  address: string;
+  generic: boolean;
+}
+
 export interface JobDetail extends JobSummary {
   description: string | null;
   salaryText: string | null;
-  emails: string[];
+  emails: ContactEmail[];
   scoreReasons: string[];
   notes: string;
   sourceLinks: SourceLink[];

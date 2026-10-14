@@ -28,6 +28,12 @@ const SHORTCUT_HINTS: Partial<Record<JobStatus, string>> = {
   ignored: 'I',
 };
 
+const APPLY_METHOD_LABELS: Record<string, string> = {
+  ats: 'Applies on company board',
+  email: 'Applies by email',
+  form: 'Applies on external form',
+};
+
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section>
@@ -82,6 +88,9 @@ export function JobDetailPanel({
           {detail.remote ? <Badge tone="muted">Remote</Badge> : null}
           {detail.reposted ? <Badge tone="lemon">Reposted</Badge> : null}
           {detail.lowConfidence ? <Badge tone="muted">Low confidence</Badge> : null}
+          {detail.applyMethod && APPLY_METHOD_LABELS[detail.applyMethod] ? (
+            <Badge tone="muted">{APPLY_METHOD_LABELS[detail.applyMethod]}</Badge>
+          ) : null}
           {detail.salaryText ? <Badge tone="neutral">{detail.salaryText}</Badge> : null}
         </div>
       </header>
@@ -138,9 +147,12 @@ export function JobDetailPanel({
         <Section title="Contact emails">
           <ul className="space-y-1">
             {detail.emails.map((email) => (
-              <li key={email} className="flex items-center justify-between gap-2 text-sm">
-                <span className="truncate">{email}</span>
-                <CopyButton value={email} label={email} />
+              <li key={email.address} className="flex items-center justify-between gap-2 text-sm">
+                <span className="flex min-w-0 items-center gap-2">
+                  <span className="truncate">{email.address}</span>
+                  <Badge tone="muted">{email.generic ? 'Shared inbox' : 'Personal'}</Badge>
+                </span>
+                <CopyButton value={email.address} label={email.address} />
               </li>
             ))}
           </ul>

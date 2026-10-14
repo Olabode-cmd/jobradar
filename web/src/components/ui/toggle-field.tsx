@@ -1,6 +1,6 @@
 import { useId } from 'react';
 
-import { cn } from '../../lib/class-names';
+import { Switch } from './switch';
 
 interface ToggleFieldProps {
   label: string;
@@ -24,25 +24,12 @@ export function ToggleField({ label, description, checked, onChange }: ToggleFie
           {description}
         </p>
       </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
+      <Switch
+        checked={checked}
+        onChange={onChange}
         aria-labelledby={labelId}
         aria-describedby={descriptionId}
-        onClick={() => onChange(!checked)}
-        className={cn(
-          'relative mt-0.5 h-7 w-12 shrink-0 rounded-full border transition-colors',
-          checked ? 'border-lemon-400 bg-lemon-400' : 'border-forest-600 bg-forest-800',
-        )}
-      >
-        <span
-          className={cn(
-            'absolute top-0.5 left-0.5 size-[22px] rounded-full transition-transform motion-reduce:transition-none',
-            checked ? 'translate-x-5 bg-ink' : 'bg-forest-300',
-          )}
-        />
-      </button>
+      />
     </div>
   );
 }

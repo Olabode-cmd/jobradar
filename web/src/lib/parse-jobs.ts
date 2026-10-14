@@ -1,6 +1,7 @@
 import { ApiError } from '../api/api-error';
 import {
   JOB_STATUSES,
+  type ContactEmail,
   type Eligibility,
   type JobDetail,
   type JobStatus,
@@ -46,6 +47,15 @@ function parseSummary(raw: Record<string, unknown>): JobSummary | null {
   };
 }
 
+function parseEmails(raw: unknown): ContactEmail[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.flatMap((item) =>
+    isRecord(item) && typeof item.address === 'string'
+      ? [{ address: item.address, generic: item.generic === true }]
+      : [],
+  );
+}
+
 function parseCounts(raw: unknown): StatusCounts {
   const source = isRecord(raw) ? raw : {};
   const counts = {} as StatusCounts;
@@ -82,7 +92,7 @@ export function parseJobDetail(body: unknown): JobDetail {
     ...summary,
     description: asStringOrNull(body.description),
     salaryText: asStringOrNull(body.salary_text),
-    emails: asStringList(body.emails),
+    emails: parseEmails(body.emails),
     scoreReasons: asStringList(body.score_reasons),
     notes: asString(body.notes),
     sourceLinks,
