@@ -10,7 +10,8 @@ from unittest import mock
 
 from app.config import AppConfig
 from app.db import open_db
-from app.pipeline import _maybe_repost, process_batch, run_fetch
+from app.pipeline import _maybe_repost, acquire_run_lock, create_run, execute_run, process_batch, run_fetch
+from app.run_progress import PROGRESS
 from app.sources.drivers import SourceResult
 
 PROFILE = {
@@ -150,6 +151,23 @@ class RunFetchIsolationTest(unittest.TestCase):
     def tearDown(self):
         os.unlink(self.tmp.name)
         os.environ.pop("JOBRADAR_DB", None)
+
+    def test_progress_tracks_each_source_and_lock_is_released(self):
+        sources = [{"id": "a", "tier": "A", "kind": "board", "type": "api"}]
+        conn = open_db()
+        try:
+            acquire_run_lock(conn, force=False)
+            run_id, started = create_run(conn, "dashboard")
+            PROGRESS.start(run_id, started, ["a"], dry_run=False)
+            with mock.patch("app.pipeline.fetch_source", return_value=SourceResult("a", records=[raw()])):
+                execute_run(conn, AppConfig(present=True, profile=PROFILE), run_id, started, sources, False, update_progress=True)
+            snapshot = PROGRESS.snapshot()
+            ok_again, _ = acquire_run_lock(conn, force=False)
+        finally:
+            conn.close()
+        self.assertEqual(snapshot["state"], "finished")
+        self.assertEqual((snapshot["sources"][0]["state"], snapshot["sources"][0]["new"]), ("ok", 1))
+        self.assertTrue(ok_again)
 
     def test_processing_error_in_one_source_does_not_stop_the_rest(self):
         sources = [

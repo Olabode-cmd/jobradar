@@ -1,13 +1,14 @@
 """Pipeline: fetch → normalize → dedupe → rules → store, with a single-flight run lock.
 
 Store-then-filter: every fetched job is stored with its eligibility computed at
-insert time; the dashboard (Phase 3) filters at query time. This makes profile
-tuning and audit ("what did RemoteOK drop today?") possible.
+insert time; the dashboard filters at query time. This makes profile tuning and
+audit ("what did RemoteOK drop today?") possible.
 """
 
 from __future__ import annotations
 
 import json
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
@@ -15,11 +16,13 @@ from .config import AppConfig
 from .db import open_db
 from .normalize import is_usable, normalize_job
 from .rules import apply_rules, parse_datetime, score_job
+from .run_progress import PROGRESS
 from .sources.drivers import fetch_source, resolve_enabled_sources
 
 LOCK_KEY = "active_run"
 STALE_AFTER_S = 600  # a crashed run releases itself after 10 minutes
 REPOST_DAYS = 30
+MAX_PARALLEL_FETCHES = 6
 
 
 def _now() -> str:
@@ -206,69 +209,81 @@ def process_batch(
     return stats
 
 
-def run_fetch(
-    config: AppConfig,
-    only: list[str] | None = None,
-    dry_run: bool = False,
-    force: bool = False,
-) -> dict[str, Any]:
-    """Fetch all enabled sources, normalize, dedupe, store. Returns a summary."""
-    conn = open_db()
+def select_sources(config: AppConfig, only: list[str] | None) -> list[dict[str, Any]]:
+    sources = resolve_enabled_sources(config)
+    if only:
+        wanted = set(only)
+        sources = [s for s in sources if s["id"] in wanted]
+    return sources
+
+
+def create_run(conn: Any, trigger: str) -> tuple[int, str]:
     started = _now()
+    cur = conn.execute("INSERT INTO runs (started_at, trigger, summary) VALUES (?, ?, '{}')", (started, trigger))
+    conn.commit()
+    return cur.lastrowid, started
+
+
+def _finish_run(conn: Any, run_id: int, summary: dict[str, Any]) -> str:
+    finished = _now()
+    conn.execute("UPDATE runs SET finished_at = ?, summary = ? WHERE id = ?", (finished, json.dumps(summary), run_id))
+    conn.commit()
+    return finished
+
+
+def execute_run(
+    conn: Any,
+    config: AppConfig,
+    run_id: int,
+    started: str,
+    sources: list[dict[str, Any]],
+    dry_run: bool,
+    update_progress: bool = False,
+) -> dict[str, Any]:
+    """Fetch sources in parallel, then normalize and store results one source at a time.
+
+    The caller must hold the run lock; it is always released here.
+    """
+    per_source: dict[str, dict[str, Any]] = {}
     try:
-        ok, message = acquire_run_lock(conn, force)
-        if not ok:
-            return {"status": "blocked", "message": message}
-
         profile = {**config.profile, "blockedCompanies": config.companies.get("blocked", [])}
-        sources = resolve_enabled_sources(config)
-        if only:
-            wanted = set(only)
-            sources = [s for s in sources if s["id"] in wanted]
-
-        conn.execute("INSERT INTO runs (started_at, trigger, summary) VALUES (?, 'cli', '{}')", (started,))
-        conn.commit()
-        run_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
-
         url_to_id = {r["canonical_url"]: r["id"] for r in conn.execute("SELECT id, canonical_url FROM jobs")}
         hash_to_id = {r["dedupe_hash"]: r["id"] for r in conn.execute("SELECT id, dedupe_hash FROM jobs WHERE dedupe_hash IS NOT NULL")}
         seen_urls: set[str] = set()
         seen_hashes: set[str] = set()
 
-        per_source: dict[str, dict[str, Any]] = {}
-        for source in sources:
-            touch_run_lock(conn)
-            result = fetch_source(source, config)
-            stats = {"fetched": 0, "new": 0, "known": 0, "skipped": 0, "error": result.error, "duration_ms": result.duration_ms}
-            if result.error:
-                stats["fetched"] = 0
-                per_source[source["id"]] = stats
-                _record_source_state(conn, source["id"], "error", result.error, _now())
-                continue
-            try:
-                batch = process_batch(conn, result.records, source, profile, seen_urls, seen_hashes, url_to_id, hash_to_id, _now(), dry_run)
-            except Exception as exc:  # a bad record must not abort the other sources
-                stats["error"] = f"{type(exc).__name__}: {exc}"
-                per_source[source["id"]] = stats
-                _record_source_state(conn, source["id"], "error", stats["error"], _now())
-                continue
-            stats["fetched"] = batch["fetched"]
-            stats["new"] = batch["new"]
-            stats["known"] = batch["known"]
-            stats["skipped"] = batch["skipped"]
-            per_source[source["id"]] = stats
-            _record_source_state(conn, source["id"], "ok", None, _now())
+        def report(source_id: str, **fields: Any) -> None:
+            if update_progress:
+                PROGRESS.update_source(source_id, **fields)
 
-        finished = _now()
-        conn.execute("UPDATE runs SET finished_at = ?, summary = ? WHERE id = ?", (finished, json.dumps(per_source), run_id))
+        with ThreadPoolExecutor(max_workers=MAX_PARALLEL_FETCHES) as pool:
+            futures = {pool.submit(fetch_source, source, config): source for source in sources}
+            for future in as_completed(futures):
+                source = futures[future]
+                result = future.result()
+                touch_run_lock(conn)
+                stats = {"fetched": 0, "new": 0, "known": 0, "skipped": 0, "error": result.error, "duration_ms": result.duration_ms}
+
+                if not result.error:
+                    try:
+                        batch = process_batch(conn, result.records, source, profile, seen_urls, seen_hashes, url_to_id, hash_to_id, _now(), dry_run)
+                        stats.update(batch)
+                    except Exception as exc:  # a bad record must not abort the other sources
+                        stats["error"] = f"{type(exc).__name__}: {exc}"
+
+                per_source[source["id"]] = stats
+                _record_source_state(conn, source["id"], "error" if stats["error"] else "ok", stats["error"], _now())
+                report(source["id"], state="error" if stats["error"] else "ok", **stats)
+
+        finished = _finish_run(conn, run_id, per_source)
         for source_id, s in per_source.items():
             conn.execute(
                 "INSERT INTO run_sources (run_id, source_id, fetched, new, errors, duration_ms) VALUES (?, ?, ?, ?, ?, ?)",
                 (run_id, source_id, s["fetched"], s["new"], 1 if s.get("error") else 0, s["duration_ms"]),
             )
         conn.commit()
-        release_run_lock(conn)
-
+        if update_progress:
+            PROGRESS.finish()
         return {
             "status": "ok",
             "run_id": run_id,
@@ -277,9 +292,31 @@ def run_fetch(
             "dry_run": dry_run,
             "per_source": per_source,
         }
-    except Exception:
-        release_run_lock(conn)
+    except Exception as exc:
+        _finish_run(conn, run_id, {"error": f"{type(exc).__name__}: {exc}", "sources": per_source})
+        if update_progress:
+            PROGRESS.finish(error=f"{type(exc).__name__}: {exc}")
         raise
+    finally:
+        release_run_lock(conn)
+
+
+def run_fetch(
+    config: AppConfig,
+    only: list[str] | None = None,
+    dry_run: bool = False,
+    force: bool = False,
+    trigger: str = "cli",
+) -> dict[str, Any]:
+    """Fetch all enabled sources, normalize, dedupe, store. Returns a summary."""
+    conn = open_db()
+    try:
+        ok, message = acquire_run_lock(conn, force)
+        if not ok:
+            return {"status": "blocked", "message": message}
+        sources = select_sources(config, only)
+        run_id, started = create_run(conn, trigger)
+        return execute_run(conn, config, run_id, started, sources, dry_run)
     finally:
         conn.close()
 

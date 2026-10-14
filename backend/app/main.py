@@ -8,12 +8,14 @@ from .config import llm_settings, load_config
 from .config_routes import router as config_router
 from .db import open_db
 from .jobs_routes import router as jobs_router
+from .runs_routes import router as runs_router
 from .security import LocalOnlyMiddleware
 
 app = FastAPI(title="JobRadar", version="0.1.0")
 app.add_middleware(LocalOnlyMiddleware)
 app.include_router(config_router)
 app.include_router(jobs_router)
+app.include_router(runs_router)
 
 
 @app.get("/api/health")
