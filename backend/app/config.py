@@ -30,6 +30,30 @@ class AppConfig:
         return self.profile.get("role") or None
 
 
+def _validate(profile: dict[str, Any], errors: list[str]) -> None:
+    """Type-check the profile fields so config mistakes fail with a readable message."""
+    # Each entry: (field, allowed types tuple, nullable)
+    checks = [
+        ("maxAgeDays", (int,), True),
+        ("minSalary", (int, float), True),
+        ("remoteOnly", (bool,), False),
+        ("includeKeywords", (list,), False),
+        ("excludeKeywords", (list,), False),
+        ("rejectedPhrases", (list,), False),
+        ("blockedRegions", (list,), False),
+        ("timezonesOverlap", (str, list), True),
+    ]
+    for key, allowed, nullable in checks:
+        if key not in profile:
+            continue
+        value = profile[key]
+        if value is None and nullable:
+            continue
+        if not isinstance(value, allowed):
+            expected = " or ".join(t.__name__ for t in allowed) + (" or null" if nullable else "")
+            errors.append(f"jobradar.config.json: '{key}' must be {expected}")
+
+
 def load_config() -> AppConfig:
     load_dotenv(REPO_ROOT / ".env")
     cfg = AppConfig()
@@ -46,10 +70,11 @@ def load_config() -> AppConfig:
     cfg.sources = data.get("sources", {})
     cfg.companies = data.get("companies", {})
     cfg.custom_sources = data.get("customSources", [])
+    _validate(cfg.profile, cfg.errors)
     return cfg
 
 
-def llm_settings() -> dict[str, str | None]:
+def llm_settings() -> dict[str, str | bool | None]:
     """LLM configuration from .env. API_KEY is the single optional key."""
     key = os.getenv("API_KEY")
     if not key:

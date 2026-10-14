@@ -1,0 +1,32 @@
+[
+  {
+    "id": "remoteok",
+    "name": "RemoteOK",
+    "tier": "A",
+    "kind": "board",
+    "type": "api",
+    "startUrl": "https://remoteok.com/api",
+    "timeout": 30,
+    "defaultEnabled": true
+  },
+  {
+    "id": "remotive",
+    "name": "Remotive",
+    "tier": "A",
+    "kind": "board",
+    "type": "api",
+    "startUrl": "https://remotive.com/api/remote-jobs?limit=100",
+    "timeout": 30,
+    "defaultEnabled": true
+  },
+  {
+    "id": "weworkremotely",
+    "name": "We Work Remotely",
+    "tier": "A",
+    "kind": "board",
+    "type": "rss",
+    "startUrl": "https://weworkremotely.com/remote-jobs.rss",
+    "timeout": 30,
+    "defaultEnabled": true
+  }
+]
