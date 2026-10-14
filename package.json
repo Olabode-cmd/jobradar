@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev:api": "cd backend && python -m uvicorn app.main:app --reload --port 8000",
+    "dev:web": "cd web && bun run dev",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

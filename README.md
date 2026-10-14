@@ -65,6 +65,18 @@ python -m uvicorn app.main:app --port 8000
 
 Open http://127.0.0.1:8000/api/health in your browser — it reports the database and config status. The dashboard will use this same API.
 
+## Edit your profile in the browser
+
+With the API running (above), start the dashboard in a second terminal:
+
+```bash
+cd web
+bun install
+bun run dev
+```
+
+Open http://127.0.0.1:5173. The Profile page edits `jobradar.config.json` directly.
+
 ## Where things live
 
 - Your search settings: `jobradar.config.json` (this is the only file you ever edit)
