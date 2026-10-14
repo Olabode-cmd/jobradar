@@ -5,7 +5,10 @@ import { cn } from '../../lib/class-names';
 import { ApiStatusPill } from './api-status-pill';
 import { RadarMark } from './radar-mark';
 
-const NAV_ITEMS = [{ to: '/profile', label: 'Profile' }] as const;
+const NAV_ITEMS = [
+  { to: '/inbox', label: 'Inbox' },
+  { to: '/profile', label: 'Profile' },
+] as const;
 
 export function AppHeader() {
   const status = useApiStatus();

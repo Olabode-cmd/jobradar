@@ -69,6 +69,14 @@ class JobsRepoTest(unittest.TestCase):
         self.assertEqual(job["source_links"][0]["source_id"], "board")
         self.assertTrue(job["score_reasons"])
 
+    def test_source_listed_once_even_with_several_urls(self):
+        self.conn.execute(
+            "INSERT INTO job_sources (job_id, source_id, url, seen_at) VALUES (1, 'board', 'https://alt.example.com/1', ?)",
+            (NOW,),
+        )
+        items, _ = jobs_repo.list_jobs(self.conn, JobFilters(query="React"))
+        self.assertEqual(items[0]["sources"], ["board"])
+
     def test_status_update_sets_timestamps_and_clears_repost_flag(self):
         self.conn.execute("UPDATE jobs SET reposted = 1 WHERE id = 1")
         job = jobs_repo.update_job(self.conn, 1, "applied", "emailed recruiter")

@@ -98,7 +98,7 @@ def _sources_by_job(conn: sqlite3.Connection, job_ids: list[int]) -> dict[int, l
     if not job_ids:
         return {}
     rows = conn.execute(
-        f"SELECT job_id, source_id FROM job_sources WHERE job_id IN ({','.join('?' * len(job_ids))})"
+        f"SELECT DISTINCT job_id, source_id FROM job_sources WHERE job_id IN ({','.join('?' * len(job_ids))})"
         " ORDER BY source_id",
         job_ids,
     ).fetchall()

@@ -1,42 +1,30 @@
 import { ApiError } from '../api/api-error';
 import type { ConfigSnapshot, EditableConfig, Profile } from '../types/config';
+import { asNumberOrNull, asString, asStringList, isRecord } from './guards';
 
 const DEFAULT_MAX_AGE_DAYS = 14;
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function toStringList(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter((item): item is string => typeof item === 'string');
-}
-
-function toNumberOrNull(value: unknown): number | null {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
-
 // The backend accepts a string or a list here; the form edits it as one string.
 function toTimezoneText(value: unknown): string | null {
-  const text = Array.isArray(value) ? toStringList(value).join(', ') : value;
+  const text = Array.isArray(value) ? asStringList(value).join(', ') : value;
   return typeof text === 'string' && text.trim() ? text : null;
 }
 
 function parseProfile(raw: unknown): Profile {
   const source = isRecord(raw) ? raw : {};
   return {
-    role: typeof source.role === 'string' ? source.role : '',
-    includeKeywords: toStringList(source.includeKeywords),
-    excludeKeywords: toStringList(source.excludeKeywords),
-    rejectedPhrases: toStringList(source.rejectedPhrases),
+    role: asString(source.role),
+    includeKeywords: asStringList(source.includeKeywords),
+    excludeKeywords: asStringList(source.excludeKeywords),
+    rejectedPhrases: asStringList(source.rejectedPhrases),
     remoteOnly: typeof source.remoteOnly === 'boolean' ? source.remoteOnly : true,
-    blockedRegions: toStringList(source.blockedRegions),
+    blockedRegions: asStringList(source.blockedRegions),
     timezonesOverlap: toTimezoneText(source.timezonesOverlap),
-    minSalary: toNumberOrNull(source.minSalary),
+    minSalary: asNumberOrNull(source.minSalary),
     maxAgeDays:
       source.maxAgeDays === null
         ? null
-        : (toNumberOrNull(source.maxAgeDays) ?? DEFAULT_MAX_AGE_DAYS),
+        : (asNumberOrNull(source.maxAgeDays) ?? DEFAULT_MAX_AGE_DAYS),
   };
 }
 
@@ -44,10 +32,7 @@ function parseEditable(config: Record<string, unknown>): EditableConfig {
   const preferences = isRecord(config.preferences) ? config.preferences : {};
   return {
     profile: parseProfile(config.profile),
-    preferences: {
-      userAgentContact:
-        typeof preferences.userAgentContact === 'string' ? preferences.userAgentContact : '',
-    },
+    preferences: { userAgentContact: asString(preferences.userAgentContact) },
   };
 }
 
