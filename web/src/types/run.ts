@@ -13,6 +13,12 @@ export interface SourceRunStats {
 
 export type RunState = 'idle' | 'running' | 'finished' | 'failed';
 
+export interface LlmSummary {
+  assessed: number;
+  failed: number;
+  message: string | null;
+}
+
 export interface RunProgress {
   state: RunState;
   runId: number | null;
@@ -20,6 +26,8 @@ export interface RunProgress {
   finishedAt: string | null;
   dryRun: boolean;
   error: string | null;
+  stage: 'fetch' | 'ai';
+  llm: LlmSummary | null;
   sources: SourceRunStats[];
 }
 
@@ -30,5 +38,6 @@ export interface RunHistoryItem {
   trigger: string;
   error: string | null;
   newJobs: number;
+  llm: LlmSummary | null;
   sources: SourceRunStats[];
 }

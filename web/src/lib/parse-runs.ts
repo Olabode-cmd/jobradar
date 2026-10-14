@@ -1,5 +1,6 @@
 import { ApiError } from '../api/api-error';
 import type {
+  LlmSummary,
   RunHistoryItem,
   RunProgress,
   RunState,
@@ -27,6 +28,15 @@ function parseSource(raw: unknown): SourceRunStats | null {
   };
 }
 
+function parseLlm(raw: unknown): LlmSummary | null {
+  if (!isRecord(raw)) return null;
+  return {
+    assessed: asNumberOrNull(raw.assessed) ?? 0,
+    failed: asNumberOrNull(raw.failed) ?? 0,
+    message: asStringOrNull(raw.message),
+  };
+}
+
 function parseSources(raw: unknown): SourceRunStats[] {
   if (!Array.isArray(raw)) return [];
   return raw.flatMap((item) => {
@@ -45,6 +55,8 @@ export function parseRunProgress(body: unknown): RunProgress {
     finishedAt: asStringOrNull(body.finished_at),
     dryRun: body.dry_run === true,
     error: asStringOrNull(body.error),
+    stage: body.stage === 'ai' ? 'ai' : 'fetch',
+    llm: parseLlm(body.llm),
     sources: parseSources(body.sources),
   };
 }
@@ -64,6 +76,7 @@ export function parseRunHistory(body: unknown): RunHistoryItem[] {
         trigger: asString(item.trigger, 'cli'),
         error: asStringOrNull(item.error),
         newJobs: asNumberOrNull(item.new) ?? 0,
+        llm: parseLlm(item.llm),
         sources: parseSources(item.sources),
       },
     ];

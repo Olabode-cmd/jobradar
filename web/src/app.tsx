@@ -6,6 +6,7 @@ import { InboxPage } from './features/inbox/inbox-page';
 import { NotFoundPage } from './features/not-found/not-found-page';
 import { ProfilePage } from './features/profile/profile-page';
 import { RunsPage } from './features/runs/runs-page';
+import { SettingsPage } from './features/settings/settings-page';
 import { SourcesPage } from './features/sources/sources-page';
 
 export function App() {
@@ -19,6 +20,7 @@ export function App() {
           <Route path="sources" element={<SourcesPage />} />
           <Route path="companies" element={<CompaniesPage />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="settings" element={<SettingsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

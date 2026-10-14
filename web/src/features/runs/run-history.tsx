@@ -1,6 +1,7 @@
 import { EmptyState } from '../../components/ui/empty-state';
 import { formatDateTime } from '../../lib/format-date';
 import type { RunHistoryItem } from '../../types/run';
+import { LlmSummaryLine } from './llm-summary-line';
 import { SourceRunTable } from './source-run-table';
 
 function RunSummary({ run }: { run: RunHistoryItem }) {
@@ -43,6 +44,11 @@ export function RunHistory({ items }: { items: RunHistoryItem[] }) {
               <p className="mb-3 text-sm font-semibold text-danger">{run.error}</p>
             ) : null}
             <SourceRunTable sources={run.sources} />
+            {run.llm ? (
+              <div className="mt-3">
+                <LlmSummaryLine llm={run.llm} />
+              </div>
+            ) : null}
           </div>
         </details>
       ))}

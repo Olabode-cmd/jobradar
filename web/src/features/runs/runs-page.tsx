@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Banner } from '../../components/ui/banner';
 import { Button } from '../../components/ui/button';
 import { SectionPanel } from '../../components/ui/section-panel';
+import { LlmSummaryLine } from './llm-summary-line';
 import { RunHistory } from './run-history';
 import { SourceRunTable } from './source-run-table';
 import { useRuns } from './use-runs';
@@ -52,7 +53,9 @@ export function RunsPage() {
           <SectionPanel
             title={
               progress.state === 'running'
-                ? `Fetching: ${doneCount} of ${progress.sources.length} sources done`
+                ? progress.stage === 'ai'
+                  ? 'Fetching done. AI is checking the best matches…'
+                  : `Fetching: ${doneCount} of ${progress.sources.length} sources done`
                 : progress.state === 'failed'
                   ? 'Run failed'
                   : progress.dryRun
@@ -64,6 +67,7 @@ export function RunsPage() {
               <p className="text-sm font-semibold text-danger">{progress.error}</p>
             ) : null}
             <SourceRunTable sources={progress.sources} />
+            <LlmSummaryLine llm={progress.llm} />
           </SectionPanel>
         ) : null}
 

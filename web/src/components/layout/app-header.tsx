@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { to: '/sources', label: 'Sources' },
   { to: '/companies', label: 'Companies' },
   { to: '/profile', label: 'Profile' },
+  { to: '/settings', label: 'Settings' },
 ] as const;
 
 export function AppHeader() {
