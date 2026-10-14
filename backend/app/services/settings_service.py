@@ -6,8 +6,9 @@ import time
 from typing import Any
 
 from ..config.env_file import mask_secret, read_env_values, update_env_values
-from ..config.paths import ENV_PATH
+from ..config.paths import CONFIG_PATH, ENV_PATH
 from ..core.errors import InvalidInputError
+from ..db import default_db_path
 from ..llm import LlmError, create_client, load_llm_settings
 
 FIELD_TO_ENV = {
@@ -31,6 +32,8 @@ def get_settings() -> dict[str, Any]:
         "model": env.get("LLM_MODEL", ""),
         "base_url": env.get("LLM_BASE_URL", ""),
         "llm_enabled": llm.enabled,
+        "db_path": str(default_db_path()),
+        "config_path": str(CONFIG_PATH),
     }
 
 

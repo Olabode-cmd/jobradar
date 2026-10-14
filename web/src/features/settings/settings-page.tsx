@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/button';
 import { SectionPanel } from '../../components/ui/section-panel';
 import { TextField } from '../../components/ui/text-field';
 import type { LlmProvider } from '../../types/settings';
+import { DataSection } from './data-section';
 import { LlmTestPanel } from './llm-test-panel';
 import { useSettings } from './use-settings';
 
@@ -141,6 +142,7 @@ export function SettingsPage() {
             </p>
           ) : null}
           <LlmTestPanel state={s.test} />
+          <DataSection settings={s.settings} />
         </div>
       ) : null}
     </div>

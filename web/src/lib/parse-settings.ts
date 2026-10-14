@@ -19,6 +19,8 @@ export function parseSettings(body: unknown): Settings {
     model: asString(body.model),
     baseUrl: asString(body.base_url),
     llmEnabled: body.llm_enabled === true,
+    dbPath: asString(body.db_path),
+    configPath: asString(body.config_path),
   };
 }
 

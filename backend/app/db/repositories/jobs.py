@@ -154,6 +154,15 @@ def get_job(conn: sqlite3.Connection, job_id: int) -> dict[str, Any] | None:
     return detail
 
 
+def export_rows(conn: sqlite3.Connection, statuses: tuple[str, ...]) -> list[dict[str, Any]]:
+    """Full records for export, newest triage first. An empty `statuses` means every job."""
+    where = f" WHERE status IN ({','.join('?' * len(statuses))})" if statuses else ""
+    rows = conn.execute(
+        f"SELECT id FROM jobs{where} ORDER BY COALESCE(status_changed_at, first_seen_at) DESC, id DESC", statuses
+    ).fetchall()
+    return [job for job in (get_job(conn, row["id"]) for row in rows) if job is not None]
+
+
 def job_exists(conn: sqlite3.Connection, job_id: int) -> bool:
     return conn.execute("SELECT 1 FROM jobs WHERE id = ?", (job_id,)).fetchone() is not None
 

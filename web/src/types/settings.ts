@@ -9,6 +9,8 @@ export interface Settings {
   model: string;
   baseUrl: string;
   llmEnabled: boolean;
+  dbPath: string;
+  configPath: string;
 }
 
 export interface SettingsChanges {
