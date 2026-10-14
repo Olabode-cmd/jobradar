@@ -1,0 +1,40 @@
+@import '@fontsource-variable/manrope';
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Manrope Variable', ui-sans-serif, system-ui, sans-serif;
+
+  --color-forest-950: #050f0a;
+  --color-forest-900: #08170f;
+  --color-forest-800: #0d2418;
+  --color-forest-700: #17382a;
+  --color-forest-600: #265340;
+  --color-forest-300: #8fa99b;
+
+  --color-lemon-300: #e3fb78;
+  --color-lemon-400: #d4f53c;
+  --color-lemon-500: #b9dc1f;
+
+  --color-ink: #050806;
+  --color-danger: #ff8f70;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-forest-950 font-sans text-white antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-lemon-400);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--color-lemon-400);
+    color: var(--color-ink);
+  }
+}
