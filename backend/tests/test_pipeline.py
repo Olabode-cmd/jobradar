@@ -6,9 +6,12 @@ Uses a temp SQLite file via JOBRADAR_DB — no network.
 import os
 import tempfile
 import unittest
+from unittest import mock
 
+from app.config import AppConfig
 from app.db import open_db
-from app.pipeline import _maybe_repost, process_batch
+from app.pipeline import _maybe_repost, process_batch, run_fetch
+from app.sources.drivers import SourceResult
 
 PROFILE = {
     "role": "Software engineer",
@@ -112,6 +115,52 @@ class PipelineTest(unittest.TestCase):
         self.assertEqual(stats["new"], 1)
         count = self.conn.execute("SELECT count(*) FROM jobs").fetchone()[0]
         self.assertEqual(count, 0)
+
+    def test_email_list_is_stored_as_json_text(self):
+        stats = self._process([raw(emails=["jobs@stripe.com", "hr@stripe.com"])])
+        self.assertEqual(stats["new"], 1)
+        row = self.conn.execute("SELECT emails FROM jobs").fetchone()
+        self.assertEqual(row["emails"], '["jobs@stripe.com", "hr@stripe.com"]')
+
+
+class RunFetchIsolationTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+        self.tmp.close()
+        os.environ["JOBRADAR_DB"] = self.tmp.name
+
+    def tearDown(self):
+        os.unlink(self.tmp.name)
+        os.environ.pop("JOBRADAR_DB", None)
+
+    def test_processing_error_in_one_source_does_not_stop_the_rest(self):
+        sources = [
+            {"id": "broken", "tier": "A", "kind": "board", "type": "api"},
+            {"id": "healthy", "tier": "A", "kind": "board", "type": "api"},
+        ]
+        # The broken source's record has an unsupported type, so inserting it raises.
+        results = {
+            "broken": SourceResult("broken", records=[raw(description=object())]),
+            "healthy": SourceResult("healthy", records=[raw(url="https://h.example.com/1", title="React Dev")]),
+        }
+        config = AppConfig(present=True, profile=PROFILE)
+
+        with mock.patch("app.pipeline.resolve_enabled_sources", return_value=sources), mock.patch(
+            "app.pipeline.fetch_source", side_effect=lambda source, _config: results[source["id"]]
+        ):
+            summary = run_fetch(config)
+
+        self.assertEqual(summary["status"], "ok")
+        self.assertIn("error", summary["per_source"]["broken"])
+        self.assertEqual(summary["per_source"]["healthy"]["new"], 1)
+        conn = open_db()
+        try:
+            state = conn.execute("SELECT last_status FROM source_state WHERE source_id = 'broken'").fetchone()
+            finished = conn.execute("SELECT finished_at FROM runs").fetchone()
+        finally:
+            conn.close()
+        self.assertEqual(state["last_status"], "error")
+        self.assertIsNotNone(finished["finished_at"])
 
 
 if __name__ == "__main__":

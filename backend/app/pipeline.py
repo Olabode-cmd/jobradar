@@ -238,7 +238,13 @@ def run_fetch(
                 per_source[source["id"]] = stats
                 _record_source_state(conn, source["id"], "error", result.error, _now())
                 continue
-            batch = process_batch(conn, result.records, source, config.profile, seen_urls, seen_hashes, url_to_id, hash_to_id, _now(), dry_run)
+            try:
+                batch = process_batch(conn, result.records, source, config.profile, seen_urls, seen_hashes, url_to_id, hash_to_id, _now(), dry_run)
+            except Exception as exc:  # a bad record must not abort the other sources
+                stats["error"] = f"{type(exc).__name__}: {exc}"
+                per_source[source["id"]] = stats
+                _record_source_state(conn, source["id"], "error", stats["error"], _now())
+                continue
             stats["fetched"] = batch["fetched"]
             stats["new"] = batch["new"]
             stats["known"] = batch["known"]

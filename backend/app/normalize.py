@@ -118,7 +118,7 @@ def normalize_job(raw: dict[str, Any], source: dict[str, Any], now: str) -> dict
         "first_seen_at": first_seen,
         "apply_url": raw.get("apply_url") or url,
         "apply_method": raw.get("apply_method"),
-        "emails": raw.get("emails"),
+        "emails": normalize_email_list(raw.get("emails")),
         "salary_text": raw.get("salary_text") or raw.get("salary"),
         "description": raw.get("description"),
         "low_confidence": bool(raw.get("low_confidence", False)),
