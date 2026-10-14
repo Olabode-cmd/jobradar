@@ -7,6 +7,7 @@ import { RadarMark } from './radar-mark';
 
 const NAV_ITEMS = [
   { to: '/inbox', label: 'Inbox' },
+  { to: '/runs', label: 'Runs' },
   { to: '/profile', label: 'Profile' },
 ] as const;
 

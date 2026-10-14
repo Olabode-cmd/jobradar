@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { toApiError } from '../../api/api-error';
 import { bulkUpdateJobs, ignoreCompany, updateJob } from '../../api/jobs-api';
@@ -118,9 +119,17 @@ export function InboxPage() {
   const emptyTitle =
     status === 'new' ? 'Nothing new to triage' : `No ${STATUS_LABELS[status].toLowerCase()} jobs`;
   const emptyHint =
-    status === 'new' || query || remoteOnly
-      ? 'Change the filters, or run a fetch to pull the latest postings.'
-      : 'Jobs you move here will show up in this list.';
+    status === 'new' || query || remoteOnly ? (
+      <>
+        Change the filters, or{' '}
+        <Link to="/runs" className="font-bold text-lemon-400 underline underline-offset-4">
+          run a fetch
+        </Link>{' '}
+        to pull the latest postings.
+      </>
+    ) : (
+      'Jobs you move here will show up in this list.'
+    );
 
   return (
     <div>
