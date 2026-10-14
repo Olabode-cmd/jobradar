@@ -3,7 +3,7 @@ import { TagInput } from '../../components/ui/tag-input';
 import { TextField } from '../../components/ui/text-field';
 import { ToggleField } from '../../components/ui/toggle-field';
 import type { DraftErrors, ProfileDraft } from '../../lib/profile-draft';
-import { REGION_SUGGESTIONS } from './profile-options';
+import { REGION_SUGGESTIONS } from '../../lib/regions';
 import type { SetDraftField } from './use-profile-editor';
 
 interface ProfileFormProps {
@@ -40,7 +40,7 @@ export function ProfileForm({ draft, errors, setField }: ProfileFormProps) {
           value={draft.excludeKeywords}
           onChange={(value) => setField('excludeKeywords', value)}
           placeholder="senior, lead"
-          hint="Words you never want to see in a posting."
+          hint="Jobs with these words in the title are marked restricted."
         />
       </SectionPanel>
 
@@ -96,7 +96,7 @@ export function ProfileForm({ draft, errors, setField }: ProfileFormProps) {
             onChange={(value) => setField('minSalary', value)}
             inputMode="decimal"
             placeholder="60000"
-            hint="Optional. The lowest pay you would consider."
+            hint="Optional. Yearly. Jobs that list a lower maximum are marked restricted."
             error={errors.minSalary}
             autoComplete="off"
           />
