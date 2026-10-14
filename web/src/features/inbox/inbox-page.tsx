@@ -122,7 +122,7 @@ export function InboxPage() {
     status === 'new' || query || remoteOnly ? (
       <>
         Change the filters, or{' '}
-        <Link to="/runs" className="font-bold text-lemon-400 underline underline-offset-4">
+        <Link to="/runs" className="font-bold text-success underline underline-offset-4">
           run a fetch
         </Link>{' '}
         to pull the latest postings.
@@ -134,7 +134,7 @@ export function InboxPage() {
   return (
     <div>
       <h1 className="text-4xl font-extrabold tracking-tight">Inbox</h1>
-      <p className="mt-2 mb-8 max-w-2xl text-forest-300">
+      <p className="mt-2 mb-8 max-w-2xl text-muted">
         Jobs you haven't triaged, best fit first. Use J and K to move, O to open the apply page, and
         S, A or I to save, mark applied or ignore.
       </p>

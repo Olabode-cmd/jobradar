@@ -52,7 +52,7 @@ export function JobDetailPanel({
   onSaveNotes,
 }: JobDetailPanelProps) {
   const shell =
-    'rounded-xl border border-forest-700 bg-forest-900 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-auto';
+    'rounded-xl border border-border bg-surface lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-auto';
 
   if (error) {
     return (
@@ -68,7 +68,7 @@ export function JobDetailPanel({
 
   if (!detail) {
     return (
-      <div className={cn(shell, 'p-6 text-sm text-forest-300')}>
+      <div className={cn(shell, 'p-6 text-sm text-muted')}>
         {loading ? 'Loading job…' : 'Select a job to read it here.'}
       </div>
     );
@@ -78,8 +78,8 @@ export function JobDetailPanel({
     <article className={cn(shell, 'space-y-6 p-6')} aria-busy={loading}>
       <header>
         <h2 className="text-xl leading-snug font-extrabold tracking-tight">{detail.title}</h2>
-        <p className="mt-1 text-sm text-forest-300">
-          <span className="font-semibold text-white/85">{detail.company}</span>
+        <p className="mt-1 text-sm text-muted">
+          <span className="font-semibold text-body/85">{detail.company}</span>
           {detail.locationText ? ` · ${detail.locationText}` : ''} ·{' '}
           {detail.postedEstimated ? '~' : ''}
           {formatAge(detail.postedAt)}
@@ -101,7 +101,7 @@ export function JobDetailPanel({
             href={detail.applyUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-11 items-center gap-2 rounded-lg bg-lemon-400 px-5 text-sm font-bold text-ink transition-colors hover:bg-lemon-300"
+            className="inline-flex h-11 items-center gap-2 rounded-lg bg-accent px-5 text-sm font-bold text-ink transition-colors hover:bg-accent-hover"
           >
             Open apply page
             <HugeiconsIcon icon={ArrowUpRight01Icon} size={18} strokeWidth={2.5} />
@@ -121,13 +121,13 @@ export function JobDetailPanel({
             className={cn(
               'inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm font-bold transition-colors',
               detail.status === status
-                ? 'border-white bg-white text-ink'
-                : 'border-forest-600 hover:border-forest-300',
+                ? 'border-body bg-body text-page'
+                : 'border-border-dim hover:border-muted',
             )}
           >
             {STATUS_LABELS[status]}
             {SHORTCUT_HINTS[status] ? (
-              <kbd className="text-xs text-forest-300">{SHORTCUT_HINTS[status]}</kbd>
+              <kbd className="text-xs text-muted">{SHORTCUT_HINTS[status]}</kbd>
             ) : null}
           </button>
         ))}
@@ -135,7 +135,7 @@ export function JobDetailPanel({
 
       {detail.scoreReasons.length > 0 ? (
         <Section title={`Why it scored ${detail.score?.toFixed(1) ?? ''}`.trim()}>
-          <ul className="space-y-1 text-sm text-white/85">
+          <ul className="space-y-1 text-sm text-body/85">
             {detail.scoreReasons.map((reason) => (
               <li key={reason}>{reason}</li>
             ))}
@@ -168,7 +168,7 @@ export function JobDetailPanel({
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-semibold underline decoration-forest-600 underline-offset-4 hover:decoration-lemon-400"
+                  className="font-semibold underline decoration-border-dim underline-offset-4 hover:decoration-accent"
                 >
                   {link.sourceId}
                 </a>
@@ -180,7 +180,7 @@ export function JobDetailPanel({
 
       {detail.description ? (
         <Section title="Description">
-          <p className="max-h-80 overflow-auto text-sm leading-relaxed whitespace-pre-line text-white/85">
+          <p className="max-h-80 overflow-auto text-sm leading-relaxed whitespace-pre-line text-body/85">
             {detail.description}
           </p>
         </Section>

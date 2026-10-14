@@ -12,18 +12,18 @@ export function ProfilePage() {
   return (
     <div>
       <h1 className="text-4xl font-extrabold tracking-tight">Search profile</h1>
-      <p className="mt-2 mb-10 max-w-2xl text-forest-300">
+      <p className="mt-2 mb-10 max-w-2xl text-muted">
         Tell JobRadar what to look for. Changes are written to your config file, and the command
         line reads the same file.
       </p>
 
       {state.status === 'loading' ? (
-        <p role="status" className="flex items-center gap-3 text-forest-300">
+        <p role="status" className="flex items-center gap-3 text-muted">
           <HugeiconsIcon
             icon={Loading03Icon}
             size={20}
             strokeWidth={2.2}
-            className="text-lemon-400 motion-safe:animate-spin"
+            className="text-accent motion-safe:animate-spin"
           />
           Loading your profile…
         </p>

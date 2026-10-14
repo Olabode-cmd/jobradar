@@ -30,7 +30,7 @@ export function TextField({
         className={cn(
           FIELD_BOX_CLASSES,
           fieldBorder(Boolean(error)),
-          'flex items-center focus-within:border-lemon-400',
+          'flex items-center focus-within:border-accent',
         )}
       >
         <input
@@ -41,14 +41,12 @@ export function TextField({
           aria-describedby={describedBy(id, hint, error)}
           className={cn(
             'h-11 min-w-0 flex-1 bg-transparent px-3.5 text-base font-medium outline-none',
-            'placeholder:text-forest-300/60',
+            'placeholder:text-muted/60',
             className,
           )}
           {...inputProps}
         />
-        {suffix ? (
-          <span className="pr-3.5 text-sm font-semibold text-forest-300">{suffix}</span>
-        ) : null}
+        {suffix ? <span className="pr-3.5 text-sm font-semibold text-muted">{suffix}</span> : null}
       </div>
     </FieldShell>
   );

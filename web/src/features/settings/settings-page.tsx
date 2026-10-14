@@ -22,7 +22,7 @@ export function SettingsPage() {
   return (
     <div>
       <h1 className="text-4xl font-extrabold tracking-tight">Settings</h1>
-      <p className="mt-2 mb-10 max-w-2xl text-forest-300">
+      <p className="mt-2 mb-10 max-w-2xl text-muted">
         JobRadar works without any key. Add one to let an AI model double-check postings and explain
         its fit score. It reads job descriptions only, never your CV, and checks at most 50 jobs per
         run.
@@ -70,7 +70,7 @@ export function SettingsPage() {
                 id={providerId}
                 value={s.draft.provider}
                 onChange={(event) => s.setField('provider', event.target.value as LlmProvider)}
-                className="h-11 w-full rounded-lg border border-forest-700 bg-forest-800 px-3 text-base font-medium outline-none hover:border-forest-600 focus:border-lemon-400"
+                className="h-11 w-full rounded-lg border border-border bg-input px-3 text-base font-medium outline-none hover:border-border-dim focus:border-accent"
               >
                 {PROVIDER_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -79,7 +79,7 @@ export function SettingsPage() {
                 ))}
               </select>
               {s.settings.detectedProvider ? (
-                <p className="mt-2 text-sm text-forest-300">
+                <p className="mt-2 text-sm text-muted">
                   Currently using: {s.settings.detectedProvider}
                 </p>
               ) : null}
@@ -131,15 +131,13 @@ export function SettingsPage() {
               </Button>
             ) : null}
             {s.justSaved ? (
-              <p role="status" className="text-sm font-bold text-lemon-400">
+              <p role="status" className="text-sm font-bold text-success">
                 Saved to .env
               </p>
             ) : null}
           </div>
           {s.dirty && s.settings.apiKeySet ? (
-            <p className="text-sm text-forest-300">
-              Save your changes before testing the connection.
-            </p>
+            <p className="text-sm text-muted">Save your changes before testing the connection.</p>
           ) : null}
           <LlmTestPanel state={s.test} />
           <DataSection settings={s.settings} />

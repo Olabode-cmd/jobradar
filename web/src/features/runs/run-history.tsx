@@ -11,15 +11,15 @@ function RunSummary({ run }: { run: RunHistoryItem }) {
   return (
     <summary className="flex cursor-pointer flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3.5 text-sm">
       <span className="font-extrabold">Run #{run.id}</span>
-      <span className="text-forest-300">{formatDateTime(run.startedAt)}</span>
-      <span className="text-forest-300">
+      <span className="text-muted">{formatDateTime(run.startedAt)}</span>
+      <span className="text-muted">
         {run.trigger === 'dashboard' ? 'From dashboard' : 'From command line'}
       </span>
       <span className="ml-auto flex items-center gap-4 font-bold tabular-nums">
         {run.error ? <span className="text-danger">Failed</span> : null}
-        {unfinished && !run.error ? <span className="text-forest-300">Did not finish</span> : null}
+        {unfinished && !run.error ? <span className="text-muted">Did not finish</span> : null}
         {failedSources > 0 ? <span className="text-danger">{failedSources} failed</span> : null}
-        <span className="text-lemon-400">+{run.newJobs} new</span>
+        <span className="text-success">+{run.newJobs} new</span>
       </span>
     </summary>
   );
@@ -37,9 +37,9 @@ export function RunHistory({ items }: { items: RunHistoryItem[] }) {
   return (
     <div className="space-y-2">
       {items.map((run) => (
-        <details key={run.id} className="rounded-xl border border-forest-700 bg-forest-900">
+        <details key={run.id} className="rounded-xl border border-border bg-surface">
           <RunSummary run={run} />
-          <div className="border-t border-forest-700 px-5 py-3">
+          <div className="border-t border-border px-5 py-3">
             {run.error ? (
               <p className="mb-3 text-sm font-semibold text-danger">{run.error}</p>
             ) : null}

@@ -29,7 +29,7 @@ export function JobNotesField({ initialValue, onSave }: JobNotesFieldProps) {
         rows={3}
         maxLength={5000}
         placeholder="Recruiter name, follow-up date, anything worth remembering"
-        className="w-full resize-y rounded-lg border border-forest-700 bg-forest-800 px-3.5 py-2.5 text-sm font-medium outline-none placeholder:text-forest-300/60 hover:border-forest-600 focus:border-lemon-400"
+        className="w-full resize-y rounded-lg border border-border bg-input px-3.5 py-2.5 text-sm font-medium outline-none placeholder:text-muted/60 hover:border-border-dim focus:border-accent"
       />
     </div>
   );

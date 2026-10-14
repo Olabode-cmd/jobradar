@@ -32,8 +32,8 @@ function Chip({
       className={cn(
         'h-10 rounded-lg border px-3.5 text-sm font-bold transition-colors',
         pressed
-          ? 'border-lemon-400 bg-lemon-400 text-ink'
-          : 'border-forest-600 text-white hover:border-forest-300',
+          ? 'border-accent bg-accent text-ink'
+          : 'border-border-dim text-body hover:border-muted',
       )}
     >
       {children}
@@ -50,14 +50,14 @@ export function InboxFilterBar(props: InboxFilterBarProps) {
           icon={Search01Icon}
           size={18}
           strokeWidth={2}
-          className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-forest-300"
+          className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-muted"
         />
         <input
           type="search"
           value={props.searchText}
           onChange={(event) => props.onSearchText(event.target.value)}
           placeholder="Search title or company"
-          className="h-10 w-full rounded-lg border border-forest-700 bg-forest-800 pr-3 pl-10 text-sm font-medium outline-none placeholder:text-forest-300/60 hover:border-forest-600 focus:border-lemon-400"
+          className="h-10 w-full rounded-lg border border-border bg-input pr-3 pl-10 text-sm font-medium outline-none placeholder:text-muted/60 hover:border-border-dim focus:border-accent"
         />
       </label>
       <Chip pressed={props.remoteOnly} onToggle={() => props.onRemoteOnly(!props.remoteOnly)}>
@@ -70,11 +70,11 @@ export function InboxFilterBar(props: InboxFilterBarProps) {
         Show restricted
       </Chip>
       <label className="flex items-center gap-2 text-sm font-bold">
-        <span className="text-forest-300">Sort</span>
+        <span className="text-muted">Sort</span>
         <select
           value={props.sort}
           onChange={(event) => props.onSort(event.target.value === 'recent' ? 'recent' : 'score')}
-          className="h-10 rounded-lg border border-forest-700 bg-forest-800 px-3 text-sm font-bold outline-none hover:border-forest-600 focus:border-lemon-400"
+          className="h-10 rounded-lg border border-border bg-input px-3 text-sm font-bold outline-none hover:border-border-dim focus:border-accent"
         >
           <option value="score">Best fit</option>
           <option value="recent">Newest</option>

@@ -2,8 +2,8 @@ import { cn } from '../../lib/class-names';
 import type { Eligibility } from '../../types/job';
 
 const ELIGIBILITY_STYLES: Record<Eligibility, { label: string; className: string }> = {
-  eligible: { label: 'Eligible', className: 'text-lemon-400' },
-  unclear: { label: 'Unclear', className: 'text-forest-300' },
+  eligible: { label: 'Eligible', className: 'text-success' },
+  unclear: { label: 'Unclear', className: 'text-muted' },
   restricted: { label: 'Restricted', className: 'text-danger' },
 };
 

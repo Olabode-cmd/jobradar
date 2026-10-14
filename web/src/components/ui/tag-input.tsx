@@ -54,20 +54,20 @@ export function TagInput({
         className={cn(
           FIELD_BOX_CLASSES,
           fieldBorder(Boolean(error)),
-          'flex flex-wrap items-center gap-2 p-2 focus-within:border-lemon-400',
+          'flex flex-wrap items-center gap-2 p-2 focus-within:border-accent',
         )}
       >
         {value.map((term) => (
           <span
             key={term}
-            className="inline-flex items-center gap-1 rounded-md bg-forest-700 py-1 pr-1.5 pl-2.5 text-sm font-semibold"
+            className="inline-flex items-center gap-1 rounded-md bg-raised py-1 pr-1.5 pl-2.5 text-sm font-semibold"
           >
             {term}
             <button
               type="button"
               aria-label={`Remove ${term}`}
               onClick={() => onChange(removeTerm(value, term))}
-              className="rounded p-0.5 text-forest-300 transition-colors hover:bg-forest-600 hover:text-white"
+              className="rounded p-0.5 text-muted transition-colors hover:bg-raised hover:text-body"
             >
               <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={2} />
             </button>
@@ -82,7 +82,7 @@ export function TagInput({
           placeholder={value.length === 0 ? placeholder : undefined}
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy(id, hint, error)}
-          className="min-w-32 flex-1 bg-transparent px-1.5 py-1 text-base font-medium outline-none placeholder:text-forest-300/60"
+          className="min-w-32 flex-1 bg-transparent px-1.5 py-1 text-base font-medium outline-none placeholder:text-muted/60"
         />
       </div>
       {unusedSuggestions.length > 0 ? (
@@ -92,7 +92,7 @@ export function TagInput({
               key={suggestion}
               type="button"
               onClick={() => onChange(addTerms(value, suggestion))}
-              className="inline-flex items-center gap-1 rounded-md border border-dashed border-forest-600 py-1 pr-2.5 pl-1.5 text-sm font-semibold text-forest-300 transition-colors hover:border-forest-300 hover:text-white"
+              className="inline-flex items-center gap-1 rounded-md border border-dashed border-border-dim py-1 pr-2.5 pl-1.5 text-sm font-semibold text-muted transition-colors hover:border-muted hover:text-body"
             >
               <HugeiconsIcon icon={Add01Icon} size={14} strokeWidth={2} />
               {suggestion}

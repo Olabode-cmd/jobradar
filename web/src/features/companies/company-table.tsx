@@ -24,16 +24,16 @@ function Health({ company }: { company: Company }) {
       </div>
     );
   }
-  if (!company.lastCheckedAt) return <span className="text-forest-300">Not checked yet</span>;
-  return <span className="text-forest-300">Checked {formatAge(company.lastCheckedAt)}</span>;
+  if (!company.lastCheckedAt) return <span className="text-muted">Not checked yet</span>;
+  return <span className="text-muted">Checked {formatAge(company.lastCheckedAt)}</span>;
 }
 
 export function CompanyTable({ companies, busy, onToggle, onRemove }: CompanyTableProps) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-forest-700 bg-forest-900">
+    <div className="overflow-x-auto rounded-xl border border-border bg-surface">
       <table className="w-full text-left text-sm">
-        <thead className="text-forest-300">
-          <tr className="border-b border-forest-700">
+        <thead className="text-muted">
+          <tr className="border-b border-border">
             <th className="px-5 py-3 font-bold">Company</th>
             <th className="px-3 py-3 font-bold">Board</th>
             <th className="px-3 py-3 text-right font-bold">Open roles</th>
@@ -48,10 +48,10 @@ export function CompanyTable({ companies, busy, onToggle, onRemove }: CompanyTab
           {companies.map((company) => (
             <tr
               key={`${company.provider}:${company.slug}`}
-              className="border-b border-forest-700/60 align-top"
+              className="border-b border-border/60 align-top"
             >
               <td className="px-5 py-3.5 font-bold">{company.name}</td>
-              <td className="px-3 py-3.5 text-forest-300">
+              <td className="px-3 py-3.5 text-muted">
                 {company.providerName} · {company.slug}
               </td>
               <td className="px-3 py-3.5 text-right tabular-nums">{company.openRoles ?? '–'}</td>
@@ -72,7 +72,7 @@ export function CompanyTable({ companies, busy, onToggle, onRemove }: CompanyTab
                   onClick={() => onRemove(company)}
                   disabled={busy}
                   aria-label={`Remove ${company.name}`}
-                  className="rounded-md p-2 text-forest-300 transition-colors hover:bg-forest-700 hover:text-danger disabled:opacity-50"
+                  className="rounded-md p-2 text-muted transition-colors hover:bg-raised hover:text-danger disabled:opacity-50"
                 >
                   <HugeiconsIcon icon={Delete02Icon} size={18} strokeWidth={2} />
                 </button>

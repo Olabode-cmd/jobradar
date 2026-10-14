@@ -21,7 +21,7 @@ export function StatusTabs({ value, counts, onChange }: StatusTabsProps) {
     <div
       role="tablist"
       aria-label="Job status"
-      className="flex flex-wrap gap-x-6 border-b border-forest-700"
+      className="flex flex-wrap gap-x-6 border-b border-border"
     >
       {JOB_STATUSES.map((status) => {
         const active = status === value;
@@ -34,14 +34,12 @@ export function StatusTabs({ value, counts, onChange }: StatusTabsProps) {
             onClick={() => onChange(status)}
             className={cn(
               '-mb-px flex items-center gap-2 border-b-2 pb-3 text-sm font-bold transition-colors',
-              active
-                ? 'border-lemon-400 text-white'
-                : 'border-transparent text-forest-300 hover:text-white',
+              active ? 'border-accent text-body' : 'border-transparent text-muted hover:text-body',
             )}
           >
             {STATUS_LABELS[status]}
             {counts ? (
-              <span className={cn('tabular-nums', active ? 'text-lemon-400' : 'text-forest-300')}>
+              <span className={cn('tabular-nums', active ? 'text-success' : 'text-muted')}>
                 {counts[status]}
               </span>
             ) : null}

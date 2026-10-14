@@ -9,7 +9,7 @@ interface BulkBarProps {
 
 export function BulkBar({ count, onStatus, onClear }: BulkBarProps) {
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-xl border border-lemon-400 px-4 py-2.5">
+    <div className="flex flex-wrap items-center gap-3 rounded-xl border border-accent px-4 py-2.5">
       <p className="mr-auto text-sm font-bold">{count} selected</p>
       <Button variant="ghost" className="h-9 px-4" onClick={() => onStatus('saved')}>
         Save

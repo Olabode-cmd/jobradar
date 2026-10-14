@@ -46,12 +46,12 @@ export function JobList(props: JobListProps) {
 
   if (status === 'loading' && items.length === 0) {
     return (
-      <p role="status" className="flex items-center gap-3 py-10 text-forest-300">
+      <p role="status" className="flex items-center gap-3 py-10 text-muted">
         <HugeiconsIcon
           icon={Loading03Icon}
           size={20}
           strokeWidth={2.2}
-          className="text-lemon-400 motion-safe:animate-spin"
+          className="text-accent motion-safe:animate-spin"
         />
         Loading jobs…
       </p>
@@ -64,7 +64,7 @@ export function JobList(props: JobListProps) {
 
   return (
     <div>
-      <ul className="overflow-hidden rounded-xl border border-forest-700 border-b-0 bg-forest-900">
+      <ul className="overflow-hidden rounded-xl border border-border border-b-0 bg-surface">
         {items.map((job) => (
           <JobRow
             key={job.id}
@@ -76,7 +76,7 @@ export function JobList(props: JobListProps) {
           />
         ))}
       </ul>
-      <div className="mt-4 flex items-center justify-between gap-4 text-sm text-forest-300">
+      <div className="mt-4 flex items-center justify-between gap-4 text-sm text-muted">
         <p>
           Showing {items.length} of {props.total}
         </p>

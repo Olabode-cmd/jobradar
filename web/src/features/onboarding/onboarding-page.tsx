@@ -16,7 +16,7 @@ export function OnboardingPage() {
       </Banner>
     );
   }
-  if (!flow.ready) return <p className="text-forest-300">Loading…</p>;
+  if (!flow.ready) return <p className="text-muted">Loading…</p>;
 
   if (flow.saved) {
     const fetchNow = async () => {
@@ -25,7 +25,7 @@ export function OnboardingPage() {
     return (
       <div className="max-w-xl">
         <h1 className="text-4xl font-extrabold tracking-tight">Your radar is set</h1>
-        <p className="mt-3 text-forest-300">
+        <p className="mt-3 text-muted">
           Your search is saved. Fetch jobs now to see the first matches, or look around first. You
           can change anything later on the Profile page.
         </p>
@@ -53,7 +53,7 @@ export function OnboardingPage() {
 
   return (
     <div className="max-w-2xl">
-      <p className="text-sm font-bold text-forest-300">
+      <p className="text-sm font-bold text-muted">
         Question {flow.step + 1} of {STEP_COUNT}
       </p>
       <h1 className="mt-2 mb-8 text-4xl font-extrabold tracking-tight">{current.title}</h1>

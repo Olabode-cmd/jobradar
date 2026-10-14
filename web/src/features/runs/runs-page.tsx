@@ -20,7 +20,7 @@ export function RunsPage() {
   return (
     <div>
       <h1 className="text-4xl font-extrabold tracking-tight">Runs</h1>
-      <p className="mt-2 mb-10 max-w-2xl text-forest-300">
+      <p className="mt-2 mb-10 max-w-2xl text-muted">
         A run fetches every enabled source, removes duplicates and stores what's new. It never
         applies to anything for you.
       </p>
@@ -37,7 +37,7 @@ export function RunsPage() {
               checked={dryRun}
               onChange={(event) => setDryRun(event.target.checked)}
               disabled={running}
-              className="size-4 accent-lemon-400"
+              className="size-4 accent-accent"
             />
             Dry run: fetch and count, but store nothing
           </label>

@@ -27,13 +27,13 @@ export function CopyButton({ value, label }: { value: string; label: string }) {
       type="button"
       onClick={copy}
       aria-label={copied ? `Copied ${label}` : `Copy ${label}`}
-      className="rounded-md p-1.5 text-forest-300 transition-colors hover:bg-forest-700 hover:text-white"
+      className="rounded-md p-1.5 text-muted transition-colors hover:bg-raised hover:text-body"
     >
       <HugeiconsIcon
         icon={copied ? Tick02Icon : Copy01Icon}
         size={16}
         strokeWidth={2}
-        className={copied ? 'text-lemon-400' : undefined}
+        className={copied ? 'text-success' : undefined}
       />
     </button>
   );

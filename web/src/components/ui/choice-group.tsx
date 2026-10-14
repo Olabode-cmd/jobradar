@@ -32,9 +32,7 @@ export function ChoiceGroup<T extends string>({
             onClick={() => onChange(option.value)}
             className={cn(
               'rounded-xl border p-4 text-left transition-colors',
-              selected
-                ? 'border-lemon-400 bg-forest-800'
-                : 'border-forest-700 hover:border-forest-600',
+              selected ? 'border-accent bg-input' : 'border-border hover:border-border-dim',
             )}
           >
             <span className="flex items-center gap-3">
@@ -42,13 +40,13 @@ export function ChoiceGroup<T extends string>({
                 aria-hidden="true"
                 className={cn(
                   'size-4 shrink-0 rounded-full border-2',
-                  selected ? 'border-lemon-400 bg-lemon-400' : 'border-forest-600',
+                  selected ? 'border-accent bg-accent' : 'border-border-dim',
                 )}
               />
               <span className="font-bold">{option.label}</span>
             </span>
             {option.hint ? (
-              <span className="mt-1 ml-7 block text-sm text-forest-300">{option.hint}</span>
+              <span className="mt-1 ml-7 block text-sm text-muted">{option.hint}</span>
             ) : null}
           </button>
         );

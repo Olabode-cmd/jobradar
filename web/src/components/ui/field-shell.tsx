@@ -14,10 +14,10 @@ export function describedBy(id: string, hint?: string, error?: string): string |
 }
 
 export const FIELD_BOX_CLASSES =
-  'rounded-lg border bg-forest-800 transition-colors hover:border-forest-600';
+  'rounded-lg border bg-input transition-colors hover:border-border-dim';
 
 export function fieldBorder(hasError: boolean): string {
-  return hasError ? 'border-danger' : 'border-forest-700';
+  return hasError ? 'border-danger' : 'border-border';
 }
 
 export function FieldShell({ id, label, hint, error, children }: FieldShellProps) {
@@ -32,7 +32,7 @@ export function FieldShell({ id, label, hint, error, children }: FieldShellProps
           {error}
         </p>
       ) : hint ? (
-        <p id={`${id}-hint`} className="mt-2 text-sm text-forest-300">
+        <p id={`${id}-hint`} className="mt-2 text-sm text-muted">
           {hint}
         </p>
       ) : null}

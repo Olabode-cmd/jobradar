@@ -5,13 +5,13 @@ import { SectionPanel } from '../../components/ui/section-panel';
 import type { Settings } from '../../types/settings';
 
 const LINK_CLASSES =
-  'inline-flex h-11 items-center gap-2 rounded-lg border border-forest-600 px-5 text-sm font-bold transition-colors hover:border-forest-300';
+  'inline-flex h-11 items-center gap-2 rounded-lg border border-border-dim px-5 text-sm font-bold transition-colors hover:border-muted';
 
 function PathRow({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <dt className="text-sm font-bold">{label}</dt>
-      <dd className="mt-0.5 text-sm break-all text-forest-300">{value}</dd>
+      <dd className="mt-0.5 text-sm break-all text-muted">{value}</dd>
     </div>
   );
 }

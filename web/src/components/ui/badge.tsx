@@ -5,10 +5,10 @@ import { cn } from '../../lib/class-names';
 type BadgeTone = 'neutral' | 'lemon' | 'danger' | 'muted';
 
 const TONE_CLASSES: Record<BadgeTone, string> = {
-  neutral: 'bg-forest-700 text-white',
-  lemon: 'bg-lemon-400 text-ink',
+  neutral: 'bg-raised text-muted',
+  lemon: 'bg-accent text-ink',
   danger: 'border border-danger/60 text-danger',
-  muted: 'border border-forest-700 text-forest-300',
+  muted: 'border border-border text-muted',
 };
 
 export function Badge({ tone = 'neutral', children }: { tone?: BadgeTone; children: ReactNode }) {

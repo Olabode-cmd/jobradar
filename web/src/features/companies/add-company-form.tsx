@@ -10,7 +10,7 @@ interface AddCompanyFormProps {
 }
 
 const INPUT_CLASSES =
-  'w-full rounded-lg border border-forest-700 bg-forest-800 px-3.5 text-base font-medium outline-none placeholder:text-forest-300/60 hover:border-forest-600 focus:border-lemon-400';
+  'w-full rounded-lg border border-border bg-input px-3.5 text-base font-medium outline-none placeholder:text-muted/60 hover:border-border-dim focus:border-accent';
 
 export function AddCompanyForm({ busy, onAdd, onImport, onAddSeed }: AddCompanyFormProps) {
   const urlId = useId();
@@ -39,7 +39,7 @@ export function AddCompanyForm({ busy, onAdd, onImport, onAddSeed }: AddCompanyF
   };
 
   return (
-    <div className="space-y-4 rounded-xl border border-forest-700 bg-forest-900 p-6">
+    <div className="space-y-4 rounded-xl border border-border bg-surface p-6">
       <form onSubmit={submitOne}>
         <label htmlFor={urlId} className="mb-2 block text-sm font-bold">
           Add a company by its careers page
@@ -57,7 +57,7 @@ export function AddCompanyForm({ busy, onAdd, onImport, onAddSeed }: AddCompanyF
             {busy ? 'Checking…' : 'Add company'}
           </Button>
         </div>
-        <p className="mt-2 text-sm text-forest-300">
+        <p className="mt-2 text-sm text-muted">
           Works with Greenhouse, Lever, Ashby, Workable, Recruitee, SmartRecruiters, Teamtailor,
           Personio, BambooHR and Breezy links. JobRadar checks the board exists before adding it.
         </p>

@@ -8,7 +8,7 @@ import type { SourceRunStats } from '../../types/run';
 function StateCell({ source }: { source: SourceRunStats }) {
   if (source.state === 'running') {
     return (
-      <span className="inline-flex items-center gap-1.5 text-forest-300">
+      <span className="inline-flex items-center gap-1.5 text-muted">
         <HugeiconsIcon
           icon={Loading03Icon}
           size={14}
@@ -28,12 +28,12 @@ function StateCell({ source }: { source: SourceRunStats }) {
 
 export function SourceRunTable({ sources }: { sources: SourceRunStats[] }) {
   if (sources.length === 0)
-    return <p className="text-sm text-forest-300">No source details recorded.</p>;
+    return <p className="text-sm text-muted">No source details recorded.</p>;
 
   return (
     <table className="w-full text-left text-sm">
-      <thead className="text-forest-300">
-        <tr className="border-b border-forest-700">
+      <thead className="text-muted">
+        <tr className="border-b border-border">
           <th className="py-2 pr-4 font-bold">Source</th>
           <th className="py-2 pr-4 font-bold">Status</th>
           <th className="py-2 pr-4 text-right font-bold">Fetched</th>
@@ -44,7 +44,7 @@ export function SourceRunTable({ sources }: { sources: SourceRunStats[] }) {
       </thead>
       <tbody className="tabular-nums">
         {sources.map((source) => (
-          <tr key={source.id} className="border-b border-forest-700/60 align-top">
+          <tr key={source.id} className="border-b border-border/60 align-top">
             <td className="py-2.5 pr-4 font-semibold">
               {source.id}
               {source.error ? (
@@ -55,11 +55,9 @@ export function SourceRunTable({ sources }: { sources: SourceRunStats[] }) {
               <StateCell source={source} />
             </td>
             <td className="py-2.5 pr-4 text-right">{source.fetched}</td>
-            <td className="py-2.5 pr-4 text-right font-bold text-lemon-400">{source.newJobs}</td>
-            <td className="py-2.5 pr-4 text-right text-forest-300">{source.known}</td>
-            <td className="py-2.5 text-right text-forest-300">
-              {formatDuration(source.durationMs)}
-            </td>
+            <td className="py-2.5 pr-4 text-right font-bold text-success">{source.newJobs}</td>
+            <td className="py-2.5 pr-4 text-right text-muted">{source.known}</td>
+            <td className="py-2.5 text-right text-muted">{formatDuration(source.durationMs)}</td>
           </tr>
         ))}
       </tbody>

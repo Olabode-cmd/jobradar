@@ -27,9 +27,9 @@ function statusMessage({
 }
 
 const TONE_CLASSES = {
-  neutral: 'text-white',
-  muted: 'text-forest-300',
-  success: 'text-lemon-400',
+  neutral: 'text-body',
+  muted: 'text-muted',
+  success: 'text-success',
   error: 'text-danger',
 } as const;
 
@@ -38,7 +38,7 @@ export function ProfileSaveBar(props: SaveBarProps) {
   const { text, tone } = statusMessage(props);
 
   return (
-    <div className="sticky bottom-4 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-forest-600 bg-forest-900 p-3 pl-5">
+    <div className="sticky bottom-4 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border-dim bg-surface p-3 pl-5">
       <p
         role={tone === 'error' ? 'alert' : 'status'}
         className={`flex min-w-0 items-center gap-2 text-sm font-semibold ${TONE_CLASSES[tone]}`}

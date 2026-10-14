@@ -18,11 +18,11 @@ export function AppHeader() {
   const status = useApiStatus();
 
   return (
-    <header className="border-b border-forest-700">
+    <header className="border-b border-border">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-8 px-6">
-        <div className="flex items-center gap-2.5 text-lemon-400">
+        <div className="flex items-center gap-2.5 text-accent">
           <RadarMark scanning={status === 'checking'} />
-          <span className="text-xl font-extrabold tracking-tight text-white">JobRadar</span>
+          <span className="text-xl font-extrabold tracking-tight text-body">JobRadar</span>
         </div>
 
         <nav aria-label="Main" className="flex h-full flex-1 items-stretch gap-6">
@@ -34,8 +34,8 @@ export function AppHeader() {
                 cn(
                   'flex items-center border-b-2 text-sm font-bold transition-colors',
                   isActive
-                    ? 'border-lemon-400 text-white'
-                    : 'border-transparent text-forest-300 hover:text-white',
+                    ? 'border-accent text-body'
+                    : 'border-transparent text-muted hover:text-body',
                 )
               }
             >

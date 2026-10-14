@@ -35,8 +35,8 @@ export function RoleQuestion({ answers, update }: QuestionProps) {
                 className={cn(
                   'h-10 rounded-lg border px-4 text-sm font-bold transition-colors',
                   active
-                    ? 'border-lemon-400 bg-lemon-400 text-ink'
-                    : 'border-forest-600 hover:border-forest-300',
+                    ? 'border-accent bg-accent text-ink'
+                    : 'border-border-dim hover:border-muted',
                 )}
               >
                 {template.label}

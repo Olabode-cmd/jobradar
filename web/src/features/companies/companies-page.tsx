@@ -11,7 +11,7 @@ export function CompaniesPage() {
   return (
     <div>
       <h1 className="text-4xl font-extrabold tracking-tight">Companies</h1>
-      <p className="mt-2 mb-10 max-w-2xl text-forest-300">
+      <p className="mt-2 mb-10 max-w-2xl text-muted">
         Company job boards JobRadar checks on every run. A board that fails is flagged here instead
         of being dropped.
       </p>
@@ -40,7 +40,7 @@ export function CompaniesPage() {
         ) : null}
 
         {c.loading ? (
-          <p role="status" className="text-forest-300">
+          <p role="status" className="text-muted">
             Loading companies…
           </p>
         ) : c.companies.length === 0 && !c.error ? (

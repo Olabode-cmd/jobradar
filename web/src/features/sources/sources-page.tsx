@@ -10,7 +10,7 @@ export function SourcesPage() {
   return (
     <div>
       <h1 className="text-4xl font-extrabold tracking-tight">Sources</h1>
-      <p className="mt-2 mb-10 max-w-2xl text-forest-300">
+      <p className="mt-2 mb-10 max-w-2xl text-muted">
         Where JobRadar looks for jobs. Switch a source off to skip it, or press Test to fetch it
         once and see what it returns without saving anything.
       </p>
@@ -37,7 +37,7 @@ export function SourcesPage() {
         ) : null}
 
         {loading && sources.length === 0 ? (
-          <p role="status" className="text-forest-300">
+          <p role="status" className="text-muted">
             Loading sources…
           </p>
         ) : null}

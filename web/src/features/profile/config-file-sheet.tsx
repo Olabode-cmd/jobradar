@@ -39,7 +39,7 @@ export function ConfigFileSheet({ config, dirty, fileExists }: ConfigFileSheetPr
   return (
     <aside
       aria-label="Preview of jobradar.config.json"
-      className="flex max-h-[calc(100vh-8rem)] flex-col rounded-xl bg-lemon-400 text-ink lg:sticky lg:top-6"
+      className="flex max-h-[calc(100vh-8rem)] flex-col rounded-xl bg-accent text-ink lg:sticky lg:top-6"
     >
       <div className="flex items-center justify-between gap-3 border-b border-ink/20 px-5 py-4">
         <h2 className="flex items-center gap-2 text-sm font-extrabold">
@@ -49,7 +49,7 @@ export function ConfigFileSheet({ config, dirty, fileExists }: ConfigFileSheetPr
         <span
           className={cn(
             'rounded-full border border-ink px-2.5 py-0.5 text-xs font-bold',
-            badge.filled && 'bg-ink text-lemon-400',
+            badge.filled && 'bg-ink text-accent',
           )}
         >
           {badge.text}

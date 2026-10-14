@@ -4,37 +4,78 @@
 @theme {
   --font-sans: 'Manrope Variable', ui-sans-serif, system-ui, sans-serif;
 
-  --color-forest-950: #050f0a;
-  --color-forest-900: #08170f;
-  --color-forest-800: #0d2418;
-  --color-forest-700: #17382a;
-  --color-forest-600: #265340;
+  /* ── Raw palette ──────────────────────────────────────────────────────────
+     Edit these hex values to repaint the whole app.
+     Components never reference these directly — they use the semantic
+     tokens below, which map meanings to shades from this palette.
+  */
+  --color-forest-950: #0d2018;
+  --color-forest-700: #265340;
   --color-forest-300: #8fa99b;
-
   --color-lemon-300: #e3fb78;
   --color-lemon-400: #d4f53c;
   --color-lemon-500: #b9dc1f;
-
   --color-ink: #050806;
-  --color-danger: #ff8f70;
+
+  /* ── Semantic surface tokens ──────────────────────────────────────────────
+     bg-page      body / page background
+     bg-surface   card / panel / table row background
+     bg-input     form input and select background
+     bg-raised    tag chips, elevated hover fills
+  */
+  --color-page: #ffffff;
+  --color-surface: #f3f8f5;
+  --color-input: #e8f1eb;
+  --color-raised: #d8e9de;
+
+  /* ── Semantic border tokens ───────────────────────────────────────────────
+     border-border      primary border (panels, inputs, table rows)
+     border-border-dim  secondary border (ghost buttons, dashed outlines)
+  */
+  --color-border: #b3caba;
+  --color-border-dim: #7da693;
+
+  /* ── Semantic text tokens ─────────────────────────────────────────────────
+     text-body   primary text
+     text-muted  secondary / caption text
+     text-ink    text printed on accent (lemon) fills — stays dark
+  */
+  --color-body: #0a1a11;
+  --color-muted: #3d6050;
+
+  /* ── Semantic action tokens ───────────────────────────────────────────────
+     bg-accent / border-accent / text-accent   lemon — primary action colour
+     bg-accent-hover                           lighter lemon for hover states
+  */
+  --color-accent: #d4f53c;
+  --color-accent-hover: #e3fb78;
+
+  /* ── Status tokens ────────────────────────────────────────────────────────
+     text-danger   error (≥ 7 : 1 contrast on white)
+     text-success  positive feedback (≥ 7 : 1 contrast on white)
+     Lemon (#d4f53c) has only ~1.6 : 1 contrast on white and must never
+     be used as foreground text — use text-success instead.
+  */
+  --color-danger: #b33a1a;
+  --color-success: #2a6b3c;
 }
 
 @layer base {
   html {
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   body {
-    @apply bg-forest-950 font-sans text-white antialiased;
+    @apply bg-page font-sans text-body antialiased;
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-lemon-400);
+    outline: 2px solid var(--color-accent);
     outline-offset: 2px;
   }
 
   ::selection {
-    background: var(--color-lemon-400);
+    background: var(--color-accent);
     color: var(--color-ink);
   }
 }

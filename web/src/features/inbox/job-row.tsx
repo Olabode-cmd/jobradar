@@ -18,8 +18,8 @@ export function JobRow({ job, active, checked, onSelect, onToggleChecked }: JobR
   return (
     <li
       className={cn(
-        'flex items-start gap-3 border-b border-l-2 border-forest-700 px-4 py-3 transition-colors',
-        active ? 'border-l-lemon-400 bg-forest-800' : 'border-l-transparent hover:bg-forest-900',
+        'flex items-start gap-3 border-b border-l-2 border-border px-4 py-3 transition-colors',
+        active ? 'border-l-lemon-400 bg-input' : 'border-l-transparent hover:bg-surface',
       )}
     >
       <input
@@ -27,7 +27,7 @@ export function JobRow({ job, active, checked, onSelect, onToggleChecked }: JobR
         checked={checked}
         onChange={onToggleChecked}
         aria-label={`Select ${job.title} at ${job.company}`}
-        className="mt-1.5 size-4 shrink-0 accent-lemon-400"
+        className="mt-1.5 size-4 shrink-0 accent-accent"
       />
       <button
         type="button"
@@ -39,8 +39,8 @@ export function JobRow({ job, active, checked, onSelect, onToggleChecked }: JobR
           <span className="truncate font-bold">{job.title}</span>
           {job.reposted ? <Badge tone="lemon">Reposted</Badge> : null}
         </span>
-        <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-forest-300">
-          <span className="font-semibold text-white/85">{job.company}</span>
+        <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
+          <span className="font-semibold text-body/85">{job.company}</span>
           {job.locationText ? <span className="truncate">{job.locationText}</span> : null}
           <span>
             {job.postedEstimated ? '~' : ''}

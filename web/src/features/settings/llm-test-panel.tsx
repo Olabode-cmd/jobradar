@@ -13,7 +13,7 @@ export function LlmTestPanel({ state }: { state: TestState }) {
 
   if (state.status === 'running') {
     return (
-      <p role="status" className="text-sm text-forest-300">
+      <p role="status" className="text-sm text-muted">
         Sending one small request to your provider…
       </p>
     );
@@ -30,7 +30,7 @@ export function LlmTestPanel({ state }: { state: TestState }) {
   const { result } = state;
   if (result.ok) {
     return (
-      <p role="status" className="text-sm font-bold text-lemon-400">
+      <p role="status" className="text-sm font-bold text-success">
         Connected. {result.provider} answered "{result.reply}"
         {result.model ? ` using ${result.model}` : ''} in {formatDuration(result.durationMs)}.
       </p>
@@ -40,7 +40,7 @@ export function LlmTestPanel({ state }: { state: TestState }) {
   return (
     <div role="alert" className="text-sm">
       <p className="font-bold text-danger">{result.message}</p>
-      {HINTS[result.kind] ? <p className="mt-1 text-forest-300">{HINTS[result.kind]}</p> : null}
+      {HINTS[result.kind] ? <p className="mt-1 text-muted">{HINTS[result.kind]}</p> : null}
     </div>
   );
 }

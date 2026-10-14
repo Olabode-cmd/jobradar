@@ -25,7 +25,7 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 function LastRun({ source }: { source: Source }) {
-  if (!source.lastRunAt) return <span className="text-forest-300">Never run</span>;
+  if (!source.lastRunAt) return <span className="text-muted">Never run</span>;
   if (source.lastStatus === 'error') {
     return (
       <div>
@@ -38,15 +38,15 @@ function LastRun({ source }: { source: Source }) {
       </div>
     );
   }
-  return <span className="text-forest-300">OK {formatAge(source.lastRunAt)}</span>;
+  return <span className="text-muted">OK {formatAge(source.lastRunAt)}</span>;
 }
 
 export function SourceTable({ sources, tests, onToggle, onTest, onDismissTest }: SourceTableProps) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-forest-700 bg-forest-900">
+    <div className="overflow-x-auto rounded-xl border border-border bg-surface">
       <table className="w-full text-left text-sm">
-        <thead className="text-forest-300">
-          <tr className="border-b border-forest-700">
+        <thead className="text-muted">
+          <tr className="border-b border-border">
             <th className="px-5 py-3 font-bold">Source</th>
             <th className="px-3 py-3 font-bold">Type</th>
             <th className="px-3 py-3 font-bold">Last run</th>
@@ -61,7 +61,7 @@ export function SourceTable({ sources, tests, onToggle, onTest, onDismissTest }:
             const test = tests[source.id];
             return (
               <Fragment key={source.id}>
-                <tr className="border-b border-forest-700/60 align-top">
+                <tr className="border-b border-border/60 align-top">
                   <td className="px-5 py-3.5">
                     <span className="flex items-center gap-2">
                       <span className="font-bold">{source.name}</span>
@@ -70,7 +70,7 @@ export function SourceTable({ sources, tests, onToggle, onTest, onDismissTest }:
                       </Badge>
                     </span>
                     {source.trackedCompanies !== null ? (
-                      <p className="mt-0.5 text-xs text-forest-300">
+                      <p className="mt-0.5 text-xs text-muted">
                         {source.trackedCompanies} tracked{' '}
                         {source.trackedCompanies === 1 ? 'company' : 'companies'}
                       </p>
@@ -81,7 +81,7 @@ export function SourceTable({ sources, tests, onToggle, onTest, onDismissTest }:
                       </p>
                     ) : null}
                   </td>
-                  <td className="px-3 py-3.5 text-forest-300">
+                  <td className="px-3 py-3.5 text-muted">
                     {TYPE_LABELS[source.type] ?? source.type}
                   </td>
                   <td className="px-3 py-3.5">
@@ -106,7 +106,7 @@ export function SourceTable({ sources, tests, onToggle, onTest, onDismissTest }:
                   </td>
                 </tr>
                 {test ? (
-                  <tr className="border-b border-forest-700/60 bg-forest-800/50">
+                  <tr className="border-b border-border/60 bg-input/50">
                     <td colSpan={5} className="px-5 py-4">
                       <SourceTestPanel state={test} onDismiss={() => onDismissTest(source.id)} />
                     </td>

@@ -20,7 +20,7 @@ export function ToggleField({ label, description, checked, onChange }: ToggleFie
         <span id={labelId} className="block text-sm font-bold">
           {label}
         </span>
-        <p id={descriptionId} className="mt-1 text-sm text-forest-300">
+        <p id={descriptionId} className="mt-1 text-sm text-muted">
           {description}
         </p>
       </div>

@@ -10,7 +10,7 @@ interface SourceTestPanelProps {
 
 export function SourceTestPanel({ state, onDismiss }: SourceTestPanelProps) {
   if (state.status === 'running') {
-    return <p className="text-sm text-forest-300">Fetching the source once. Nothing is saved.</p>;
+    return <p className="text-sm text-muted">Fetching the source once. Nothing is saved.</p>;
   }
 
   if (state.status === 'failed') {
@@ -22,7 +22,7 @@ export function SourceTestPanel({ state, onDismiss }: SourceTestPanelProps) {
     <div>
       <div className="flex items-center justify-between gap-4">
         <p
-          className={`text-sm font-bold ${result.ok ? 'text-lemon-400' : 'text-danger'}`}
+          className={`text-sm font-bold ${result.ok ? 'text-success' : 'text-danger'}`}
           role="status"
         >
           {result.ok
@@ -34,7 +34,7 @@ export function SourceTestPanel({ state, onDismiss }: SourceTestPanelProps) {
         </Button>
       </div>
       {result.ok && result.sample.length === 0 ? (
-        <p className="mt-2 text-sm text-forest-300">
+        <p className="mt-2 text-sm text-muted">
           The source answered but none of its postings had both a title and a link.
         </p>
       ) : null}
@@ -43,7 +43,7 @@ export function SourceTestPanel({ state, onDismiss }: SourceTestPanelProps) {
           {result.sample.map((job) => (
             <li key={`${job.title}-${job.url}`} className="text-sm">
               <span className="font-bold">{job.title}</span>
-              <span className="text-forest-300">
+              <span className="text-muted">
                 {' '}
                 · {job.company}
                 {job.locationText ? ` · ${job.locationText}` : ''} · {formatAge(job.postedAt)}
