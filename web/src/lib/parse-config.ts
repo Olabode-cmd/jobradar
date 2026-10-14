@@ -34,7 +34,9 @@ function parseProfile(raw: unknown): Profile {
     timezonesOverlap: toTimezoneText(source.timezonesOverlap),
     minSalary: toNumberOrNull(source.minSalary),
     maxAgeDays:
-      source.maxAgeDays === null ? null : (toNumberOrNull(source.maxAgeDays) ?? DEFAULT_MAX_AGE_DAYS),
+      source.maxAgeDays === null
+        ? null
+        : (toNumberOrNull(source.maxAgeDays) ?? DEFAULT_MAX_AGE_DAYS),
   };
 }
 

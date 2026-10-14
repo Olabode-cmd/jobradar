@@ -1,5 +1,4 @@
 import { HttpError, NetworkError, TimeoutError } from '@thraggs/godspeed';
-
 export type ApiErrorKind = 'offline' | 'timeout' | 'conflict' | 'invalid' | 'server' | 'unexpected';
 
 export class ApiError extends Error {
@@ -38,14 +37,20 @@ export function toApiError(error: unknown): ApiError {
     return new ApiError('timeout', 'The API took too long to respond.', { cause: error });
   }
   if (error instanceof NetworkError) {
-    return new ApiError('offline', 'Cannot reach the JobRadar API. Is the backend running on port 8000?', {
-      cause: error,
-    });
+    return new ApiError(
+      'offline',
+      'Cannot reach the JobRadar API. Is the backend running on port 8000?',
+      {
+        cause: error,
+      },
+    );
   }
   if (error instanceof HttpError) {
     const detail = describeDetail(error.body);
     if (error.status === 409) {
-      return new ApiError('conflict', detail ?? 'The config file cannot be read.', { cause: error });
+      return new ApiError('conflict', detail ?? 'The config file cannot be read.', {
+        cause: error,
+      });
     }
     if (error.status === 422) {
       return new ApiError('invalid', detail ?? 'The API rejected these values.', { cause: error });
