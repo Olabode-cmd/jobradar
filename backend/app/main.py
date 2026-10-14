@@ -5,9 +5,13 @@ from __future__ import annotations
 from fastapi import FastAPI
 
 from .config import llm_settings, load_config
+from .config_routes import router as config_router
 from .db import open_db
+from .security import LocalOnlyMiddleware
 
 app = FastAPI(title="JobRadar", version="0.1.0")
+app.add_middleware(LocalOnlyMiddleware)
+app.include_router(config_router)
 
 
 @app.get("/api/health")

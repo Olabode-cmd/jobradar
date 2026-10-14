@@ -16,6 +16,56 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 CONFIG_PATH = REPO_ROOT / "jobradar.config.json"
 
 
+class ConfigFileError(Exception):
+    """The config file exists but cannot be read as a JSON object."""
+
+
+def default_config() -> dict[str, Any]:
+    return {
+        "profile": {
+            "role": "",
+            "includeKeywords": [],
+            "excludeKeywords": [],
+            "rejectedPhrases": [],
+            "remoteOnly": True,
+            "blockedRegions": [],
+            "timezonesOverlap": None,
+            "minSalary": None,
+            "maxAgeDays": 14,
+        },
+        "sources": {"disabled": []},
+        "companies": {"tracked": []},
+        "customSources": [],
+        "preferences": {"userAgentContact": ""},
+    }
+
+
+def read_config_document() -> tuple[dict[str, Any], bool]:
+    """Return (document merged over defaults, whether the file exists)."""
+    document = default_config()
+    if not CONFIG_PATH.exists():
+        return document, False
+    try:
+        data = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as exc:
+        raise ConfigFileError(f"jobradar.config.json could not be read: {exc}") from exc
+    if not isinstance(data, dict):
+        raise ConfigFileError("jobradar.config.json must contain a JSON object")
+    for key, value in data.items():
+        if isinstance(value, dict) and isinstance(document.get(key), dict):
+            document[key] = {**document[key], **value}
+        else:
+            document[key] = value
+    return document, True
+
+
+def write_config_document(document: dict[str, Any]) -> None:
+    """Atomic write so a concurrent CLI run never reads a half-written file."""
+    tmp_path = CONFIG_PATH.with_suffix(".json.tmp")
+    tmp_path.write_text(json.dumps(document, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    os.replace(tmp_path, CONFIG_PATH)
+
+
 @dataclass
 class AppConfig:
     present: bool = False
