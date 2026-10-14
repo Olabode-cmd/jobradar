@@ -89,11 +89,11 @@ Keys starting with `sk-ant-` are treated as Anthropic; anything else as OpenAI-c
 
 ## Where things live
 
-| What | Where |
-| --- | --- |
-| Your search settings | `jobradar.config.json` (edit it in the dashboard, or by hand) |
-| Your optional AI key | `.env` |
-| Your jobs and history | one database file, shown in **Settings → Your data** |
+| What                  | Where                                                         |
+| --------------------- | ------------------------------------------------------------- |
+| Your search settings  | `jobradar.config.json` (edit it in the dashboard, or by hand) |
+| Your optional AI key  | `.env`                                                        |
+| Your jobs and history | one database file, shown in **Settings → Your data**          |
 
 To back up, copy the config file and the database file.
 
