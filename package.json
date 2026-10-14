@@ -3,8 +3,12 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "setup:api": "cd backend && python -m app.cli setup",
     "dev:api": "cd backend && python -m uvicorn app.main:app --reload --port 8000",
     "dev:web": "cd web && bun run dev",
+    "build:web": "cd web && bun install && bun run build",
+    "serve": "cd backend && python -m app.cli serve",
+    "test:api": "cd backend && python -m unittest discover -s tests -t .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
