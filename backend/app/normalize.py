@@ -91,6 +91,13 @@ def infer_remote(raw: dict[str, Any]) -> bool | None:
     return None
 
 
+def is_usable(raw: dict[str, Any]) -> bool:
+    """A record needs a title and a link; anything else is feed noise (legal notices, blanks)."""
+    title = raw.get("title") or raw.get("position")
+    link = raw.get("url") or raw.get("apply_url")
+    return bool(str(title or "").strip() and str(link or "").strip())
+
+
 def normalize_job(raw: dict[str, Any], source: dict[str, Any], now: str) -> dict[str, Any]:
     """Map a raw record to the normalized job schema used by the pipeline."""
     company = raw.get("company") or "Unknown"

@@ -13,7 +13,7 @@ from typing import Any
 
 from .config import AppConfig
 from .db import open_db
-from .normalize import normalize_job
+from .normalize import is_usable, normalize_job
 from .rules import apply_rules, parse_datetime, score_job
 from .sources.drivers import fetch_source, resolve_enabled_sources
 
@@ -79,7 +79,7 @@ def _maybe_repost(conn: Any, job_id: int, posted_at: str | None, now: str) -> No
     """A duplicate arriving with a much newer posted date re-opens as New."""
     if not posted_at:
         return
-    row = conn.execute("SELECT status, status_changed_at FROM jobs WHERE id = ?", (job_id,)).fetchone()
+    row = conn.execute("SELECT status, status_changed_at, first_seen_at FROM jobs WHERE id = ?", (job_id,)).fetchone()
     if row is None or row["status"] == "new":
         return
     try:
@@ -157,9 +157,12 @@ def process_batch(
     dry_run: bool,
 ) -> dict[str, int]:
     """Normalize, dedupe and store one source's records. Returns fetched/new counts."""
-    stats = {"fetched": len(records), "new": 0, "known": 0}
+    stats = {"fetched": len(records), "new": 0, "known": 0, "skipped": 0}
 
     for raw in records:
+        if not is_usable(raw):
+            stats["skipped"] += 1
+            continue
         job = normalize_job(raw, source, now)
         url = job["canonical_url"]
         h = job["dedupe_hash"]
@@ -184,6 +187,9 @@ def process_batch(
         job["score"], job["score_reasons"] = score_job(job, profile)
 
         if dry_run:
+            seen_urls.add(url)
+            if h:
+                seen_hashes.add(h)
             stats["new"] += 1
             continue
 
@@ -232,7 +238,7 @@ def run_fetch(
         for source in sources:
             touch_run_lock(conn)
             result = fetch_source(source, config)
-            stats = {"fetched": 0, "new": 0, "known": 0, "error": result.error, "duration_ms": result.duration_ms}
+            stats = {"fetched": 0, "new": 0, "known": 0, "skipped": 0, "error": result.error, "duration_ms": result.duration_ms}
             if result.error:
                 stats["fetched"] = 0
                 per_source[source["id"]] = stats
@@ -248,6 +254,7 @@ def run_fetch(
             stats["fetched"] = batch["fetched"]
             stats["new"] = batch["new"]
             stats["known"] = batch["known"]
+            stats["skipped"] = batch["skipped"]
             per_source[source["id"]] = stats
             _record_source_state(conn, source["id"], "ok", None, _now())
 

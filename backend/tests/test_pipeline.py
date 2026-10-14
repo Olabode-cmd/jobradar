@@ -116,6 +116,24 @@ class PipelineTest(unittest.TestCase):
         count = self.conn.execute("SELECT count(*) FROM jobs").fetchone()[0]
         self.assertEqual(count, 0)
 
+    def test_records_without_title_or_link_are_skipped(self):
+        stats = self._process([
+            {"last_updated": 1, "legal": "terms"},
+            raw(url=""),
+            raw(title="", url="https://a.example.com/job/9"),
+            raw(),
+        ])
+        self.assertEqual(stats["skipped"], 3)
+        self.assertEqual(stats["new"], 1)
+
+    def test_dry_run_counts_in_batch_duplicates_once(self):
+        stats = process_batch(
+            self.conn, [raw(), raw()], SOURCE, PROFILE,
+            self.seen_urls, self.seen_hashes, self.url_to_id, self.hash_to_id,
+            self.now, dry_run=True,
+        )
+        self.assertEqual((stats["new"], stats["known"]), (1, 1))
+
     def test_email_list_is_stored_as_json_text(self):
         stats = self._process([raw(emails=["jobs@stripe.com", "hr@stripe.com"])])
         self.assertEqual(stats["new"], 1)
