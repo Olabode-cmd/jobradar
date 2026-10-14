@@ -22,6 +22,8 @@ class RunProgress:
                 "finished_at": None,
                 "dry_run": dry_run,
                 "error": None,
+                "stage": "fetch",
+                "llm": None,
                 "sources": [{"id": source_id, "state": "running"} for source_id in source_ids],
             }
 
@@ -33,12 +35,18 @@ class RunProgress:
                 if source["id"] == source_id:
                     source.update(fields)
 
-    def finish(self, error: str | None = None) -> None:
+    def set_stage(self, stage: str) -> None:
+        with self._lock:
+            if self._state is not None:
+                self._state["stage"] = stage
+
+    def finish(self, error: str | None = None, llm: dict[str, Any] | None = None) -> None:
         with self._lock:
             if self._state is None:
                 return
             self._state["state"] = "failed" if error else "finished"
             self._state["error"] = error
+            self._state["llm"] = llm
             self._state["finished_at"] = datetime.now(UTC).isoformat()
 
     def snapshot(self) -> dict[str, Any] | None:

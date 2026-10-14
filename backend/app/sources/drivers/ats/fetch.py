@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Iterable
 
-from ...http import http_get
+from ....net.http import http_get
 from ...models import FetchContext
 from .detect import SLUG_RE
 from .providers import PROVIDERS

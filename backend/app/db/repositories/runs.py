@@ -44,9 +44,11 @@ def history(conn: sqlite3.Connection) -> list[dict[str, Any]]:
             summary = json.loads(row["summary"] or "{}")
         except json.JSONDecodeError:
             summary = {}
-        failed = isinstance(summary, dict) and isinstance(summary.get("error"), str)
-        per_source = summary.get("sources", {}) if failed else summary
+        # Current rows are {sources, llm} (or {error, sources} when failed); older rows are a flat source map.
+        nested = isinstance(summary, dict) and "sources" in summary
+        per_source = summary.get("sources", {}) if nested else summary
         sources = [{"id": sid, **stats} for sid, stats in per_source.items() if isinstance(stats, dict)]
+        failed = nested and isinstance(summary.get("error"), str)
         items.append(
             {
                 "id": row["id"],
@@ -54,6 +56,7 @@ def history(conn: sqlite3.Connection) -> list[dict[str, Any]]:
                 "finished_at": row["finished_at"],
                 "trigger": row["trigger"],
                 "error": summary["error"] if failed else None,
+                "llm": summary.get("llm") if nested else None,
                 "sources": sources,
                 "new": sum(int(source.get("new") or 0) for source in sources),
             }

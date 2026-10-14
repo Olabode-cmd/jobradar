@@ -11,7 +11,7 @@ import re
 from typing import Any
 
 from ...domain.text import html_to_text
-from ..http import http_get
+from ...net.http import http_get
 from ..models import FetchContext
 
 SEARCH_URL = (

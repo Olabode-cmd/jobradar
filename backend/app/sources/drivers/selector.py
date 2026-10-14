@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import Any
 from urllib.parse import urljoin, urlparse
 
-from ..http import http_get
+from ...net.http import http_get
 from ..models import FetchContext
 
 URL_FIELDS = ("url", "apply_url")

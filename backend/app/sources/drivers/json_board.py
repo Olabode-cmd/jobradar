@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from ..http import http_get
+from ...net.http import http_get
 from ..models import FetchContext
 
 

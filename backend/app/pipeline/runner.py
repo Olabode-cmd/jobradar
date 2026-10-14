@@ -11,8 +11,10 @@ from ..config import AppConfig
 from ..core.errors import ConflictError
 from ..db import open_db
 from ..db.repositories import health_state, run_lock, runs
+from ..llm import LlmError, create_client, load_llm_settings
 from ..sources import FetchContext, fetch_source, resolve_enabled_sources
 from .ingest import SeenIndex, process_batch
+from .llm_pass import run_llm_pass
 from .progress import RunProgress
 
 MAX_PARALLEL_FETCHES = 6
@@ -40,6 +42,17 @@ def begin_run(conn: sqlite3.Connection, trigger: str, force: bool = False) -> tu
     except Exception:
         run_lock.release(conn)
         raise
+
+
+def _llm_stage(conn: sqlite3.Connection, profile: dict[str, Any]) -> dict[str, Any] | None:
+    """The optional AI pass. A failure here is reported, never raised: the fetch already succeeded."""
+    settings = load_llm_settings()
+    if not settings.enabled:
+        return None
+    try:
+        return run_llm_pass(conn, create_client(settings), profile)
+    except LlmError as exc:
+        return {"assessed": 0, "failed": 0, "message": str(exc)}
 
 
 def execute_run(
@@ -80,10 +93,16 @@ def execute_run(
                 if progress:
                     progress.update_source(source["id"], state="error" if stats["error"] else "ok", **stats)
 
-        finished = runs.finish(conn, run_id, per_source)
+        llm_stats = None
+        if not dry_run:
+            if progress:
+                progress.set_stage("ai")
+            llm_stats = _llm_stage(conn, profile)
+
+        finished = runs.finish(conn, run_id, {"sources": per_source, "llm": llm_stats})
         runs.record_sources(conn, run_id, per_source)
         if progress:
-            progress.finish()
+            progress.finish(llm=llm_stats)
         return {
             "status": "ok",
             "run_id": run_id,
@@ -91,6 +110,7 @@ def execute_run(
             "finished_at": finished,
             "dry_run": dry_run,
             "per_source": per_source,
+            "llm": llm_stats,
         }
     except Exception as exc:
         message = f"{type(exc).__name__}: {exc}"

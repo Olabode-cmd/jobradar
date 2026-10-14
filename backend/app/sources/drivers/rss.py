@@ -5,7 +5,7 @@ from __future__ import annotations
 import xml.etree.ElementTree as ET
 from typing import Any
 
-from ..http import http_get
+from ...net.http import http_get
 from ..models import FetchContext
 
 

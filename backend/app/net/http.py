@@ -1,4 +1,4 @@
-"""The backend's only HTTP entry point: Scrapling's Fetcher.
+"""The backend's only HTTP client: Scrapling's Fetcher.
 
 Official feeds are fetched with an honest User-Agent (plus the contact string from the
 config, so a site can reach the user). Scraped HTML pages use browser-like headers.
@@ -17,7 +17,7 @@ def user_agent(contact: str = "") -> str:
 
 
 def http_get(url: str, timeout: int | None = None, *, contact: str = "", stealth: bool = False) -> Any:
-    """One GET through Scrapling's Fetcher. Returns the Response object."""
+    """One GET. Returns the Response object (non-2xx statuses are returned, not raised)."""
     from scrapling.fetchers import Fetcher
 
     kwargs: dict[str, Any] = {"stealthy_headers": stealth}
@@ -26,3 +26,11 @@ def http_get(url: str, timeout: int | None = None, *, contact: str = "", stealth
     if timeout:
         kwargs["timeout"] = timeout
     return Fetcher.get(url, **kwargs)
+
+
+def http_post_json(url: str, payload: dict[str, Any], *, headers: dict[str, str], timeout: int = 30) -> Any:
+    """One JSON POST. Returns the Response object (non-2xx statuses are returned, not raised)."""
+    from scrapling.fetchers import Fetcher
+
+    # One attempt only: a test button or an AI pass shouldn't sit through Scrapling's default 3 retries.
+    return Fetcher.post(url, json=payload, headers=headers, timeout=timeout, retries=1, stealthy_headers=False)

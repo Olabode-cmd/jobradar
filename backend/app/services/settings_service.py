@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import time
 from typing import Any
 
 from ..config.env_file import mask_secret, read_env_values, update_env_values
 from ..config.paths import ENV_PATH
 from ..core.errors import InvalidInputError
-from ..llm import load_llm_settings
+from ..llm import LlmError, create_client, load_llm_settings
 
 FIELD_TO_ENV = {
     "api_key": "API_KEY",
@@ -30,6 +31,23 @@ def get_settings() -> dict[str, Any]:
         "model": env.get("LLM_MODEL", ""),
         "base_url": env.get("LLM_BASE_URL", ""),
         "llm_enabled": llm.enabled,
+    }
+
+
+def test_llm() -> dict[str, Any]:
+    """Send one tiny request with the saved settings. A provider failure is a result, not an error."""
+    settings = load_llm_settings()
+    started = time.perf_counter()
+    try:
+        reply = create_client(settings).complete("Reply with the single word OK.", "ping", max_tokens=10)
+    except LlmError as exc:
+        return {"ok": False, "kind": exc.kind, "message": str(exc), "provider": settings.provider}
+    return {
+        "ok": True,
+        "provider": settings.provider,
+        "model": reply.model,
+        "reply": reply.text[:80],
+        "duration_ms": int((time.perf_counter() - started) * 1000),
     }
 
 
