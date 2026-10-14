@@ -50,6 +50,11 @@ class TestApplyRules(unittest.TestCase):
             "unclear",
         )
 
+    def test_blocked_company_restricts(self):
+        profile = dict(PROFILE, blockedCompanies=["acme"])
+        self.assertEqual(apply_rules(job(company_key="acme"), profile), "restricted")
+        self.assertEqual(apply_rules(job(company_key="stripe"), profile), "eligible")
+
     def test_no_include_keywords_means_eligible(self):
         empty = dict(PROFILE, includeKeywords=[])
         self.assertEqual(apply_rules(job(title="Plumber"), empty), "eligible")

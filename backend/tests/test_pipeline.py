@@ -156,9 +156,9 @@ class RunFetchIsolationTest(unittest.TestCase):
             {"id": "broken", "tier": "A", "kind": "board", "type": "api"},
             {"id": "healthy", "tier": "A", "kind": "board", "type": "api"},
         ]
-        # The broken source's record has an unsupported type, so inserting it raises.
+        # A non-string URL makes normalization raise for the broken source's record.
         results = {
-            "broken": SourceResult("broken", records=[raw(description=object())]),
+            "broken": SourceResult("broken", records=[raw(url=12345)]),
             "healthy": SourceResult("healthy", records=[raw(url="https://h.example.com/1", title="React Dev")]),
         }
         config = AppConfig(present=True, profile=PROFILE)

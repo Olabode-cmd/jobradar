@@ -220,6 +220,7 @@ def run_fetch(
         if not ok:
             return {"status": "blocked", "message": message}
 
+        profile = {**config.profile, "blockedCompanies": config.companies.get("blocked", [])}
         sources = resolve_enabled_sources(config)
         if only:
             wanted = set(only)
@@ -245,7 +246,7 @@ def run_fetch(
                 _record_source_state(conn, source["id"], "error", result.error, _now())
                 continue
             try:
-                batch = process_batch(conn, result.records, source, config.profile, seen_urls, seen_hashes, url_to_id, hash_to_id, _now(), dry_run)
+                batch = process_batch(conn, result.records, source, profile, seen_urls, seen_hashes, url_to_id, hash_to_id, _now(), dry_run)
             except Exception as exc:  # a bad record must not abort the other sources
                 stats["error"] = f"{type(exc).__name__}: {exc}"
                 per_source[source["id"]] = stats

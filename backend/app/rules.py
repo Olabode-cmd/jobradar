@@ -83,6 +83,9 @@ def apply_rules(job: dict[str, Any], profile: dict[str, Any]) -> str:
         str(job.get(k) or "") for k in ("title", "description", "location_text", "salary_text")
     ).lower()
 
+    if job.get("company_key") and job["company_key"] in (profile.get("blockedCompanies") or []):
+        return "restricted"
+
     rejected = list(profile.get("rejectedPhrases", []) or []) + _blocked_phrases(profile.get("blockedRegions"))
     if rejected and any(phrase.lower() in text for phrase in rejected):
         return "restricted"

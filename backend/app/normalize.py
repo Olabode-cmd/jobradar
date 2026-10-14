@@ -3,9 +3,18 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import re
+from datetime import UTC, datetime
+from html.parser import HTMLParser
 from typing import Any
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
+
+from .rules import parse_datetime
+
+MAX_DESCRIPTION_CHARS = 20_000
+BLOCK_TAGS = {"p", "br", "div", "li", "ul", "ol", "tr", "h1", "h2", "h3", "h4", "h5", "h6"}
+SKIPPED_TAGS = {"script", "style"}
 
 LEGAL_SUFFIXES = (
     " incorporated",
@@ -79,6 +88,71 @@ def canonicalize_url(url: str | None) -> str:
     return urlunparse((parsed.scheme, parsed.netloc.lower(), parsed.path, parsed.params, clean_query, ""))
 
 
+class _TextExtractor(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.parts: list[str] = []
+        self._skip_depth = 0
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag in SKIPPED_TAGS:
+            self._skip_depth += 1
+        elif tag in BLOCK_TAGS:
+            self.parts.append("\n- " if tag == "li" else "\n")
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag in SKIPPED_TAGS:
+            self._skip_depth = max(0, self._skip_depth - 1)
+        elif tag in BLOCK_TAGS and tag != "li":
+            self.parts.append("\n")
+
+    def handle_data(self, data: str) -> None:
+        if not self._skip_depth:
+            self.parts.append(data)
+
+
+_MOJIBAKE = re.compile("[\u00c2\u00c3\u00e2][\u0080-\u00bf]")
+
+
+def fix_mojibake(text: str) -> str:
+    """Undo UTF-8 text that an upstream feed double-encoded as Latin-1 ("\u00e2\u0080\u0094" for an em dash)."""
+    if not _MOJIBAKE.search(text):
+        return text
+    try:
+        return text.encode("latin-1").decode("utf-8")
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        return text
+
+
+def html_to_text(value: Any) -> str | None:
+    """Plain text from an HTML or text description: tags dropped, blocks become lines."""
+    if not value:
+        return None
+    text = fix_mojibake(str(value))
+    if "<" in text:
+        extractor = _TextExtractor()
+        extractor.feed(text)
+        extractor.close()
+        text = "".join(extractor.parts)
+    lines = [" ".join(line.split()) for line in text.splitlines()]
+    collapsed = re.sub(r"\n{3,}", "\n\n", "\n".join(lines)).strip()
+    return collapsed[:MAX_DESCRIPTION_CHARS] or None
+
+
+def to_iso(value: Any) -> str | None:
+    """ISO-8601 UTC string from ISO/RFC 2822 text or an epoch (seconds or milliseconds)."""
+    if value is None or value == "" or isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        seconds = value / 1000 if value > 1e11 else value
+        try:
+            return datetime.fromtimestamp(seconds, UTC).isoformat()
+        except (OverflowError, OSError, ValueError):
+            return None
+    parsed = parse_datetime(str(value))
+    return parsed.isoformat() if parsed else None
+
+
 def infer_remote(raw: dict[str, Any]) -> bool | None:
     """Remote flag: driver says so, or the text suggests it."""
     if raw.get("remote") is not None:
@@ -100,12 +174,15 @@ def is_usable(raw: dict[str, Any]) -> bool:
 
 def normalize_job(raw: dict[str, Any], source: dict[str, Any], now: str) -> dict[str, Any]:
     """Map a raw record to the normalized job schema used by the pipeline."""
-    company = raw.get("company") or "Unknown"
-    title = raw.get("title") or raw.get("position") or "Untitled"
+    company = fix_mojibake(str(raw.get("company") or "Unknown"))
+    title = fix_mojibake(str(raw.get("title") or raw.get("position") or "Untitled"))
     url = raw.get("url") or raw.get("apply_url") or ""
     canonical = canonicalize_url(url)
     first_seen = raw.get("first_seen_at") or now
-    posted = raw.get("posted_at") or raw.get("date") or raw.get("publication_date") or first_seen
+    posted = (
+        to_iso(raw.get("posted_at") or raw.get("date") or raw.get("publication_date") or raw.get("epoch"))
+        or first_seen
+    )
     tags = raw.get("tags") or []
     if isinstance(tags, str):
         tags = [tags]
@@ -127,7 +204,7 @@ def normalize_job(raw: dict[str, Any], source: dict[str, Any], now: str) -> dict
         "apply_method": raw.get("apply_method"),
         "emails": normalize_email_list(raw.get("emails")),
         "salary_text": raw.get("salary_text") or raw.get("salary"),
-        "description": raw.get("description"),
+        "description": html_to_text(raw.get("description")),
         "low_confidence": bool(raw.get("low_confidence", False)),
     }
 
@@ -138,6 +215,4 @@ def normalize_email_list(emails: Any) -> str | None:
         return None
     if isinstance(emails, str):
         return emails
-    import json
-
     return json.dumps(list(emails))

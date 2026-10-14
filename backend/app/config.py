@@ -34,7 +34,7 @@ def default_config() -> dict[str, Any]:
             "maxAgeDays": 14,
         },
         "sources": {"disabled": []},
-        "companies": {"tracked": []},
+        "companies": {"tracked": [], "blocked": []},
         "customSources": [],
         "preferences": {"userAgentContact": ""},
     }
@@ -57,6 +57,15 @@ def read_config_document() -> tuple[dict[str, Any], bool]:
         else:
             document[key] = value
     return document, True
+
+
+def add_blocked_company(company_key: str) -> None:
+    """Record an ignored company's normalized key so future fetches mark it restricted."""
+    document, _ = read_config_document()
+    blocked = [str(key) for key in document["companies"].get("blocked", []) or []]
+    if company_key not in blocked:
+        document["companies"]["blocked"] = [*blocked, company_key]
+        write_config_document(document)
 
 
 def write_config_document(document: dict[str, Any]) -> None:

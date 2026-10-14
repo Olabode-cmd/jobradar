@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import (
     BaseModel,
@@ -66,6 +66,23 @@ class PreferencesIn(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
     userAgentContact: Annotated[str, Field(max_length=200)]
+
+
+JobStatus = Literal["new", "saved", "applied", "interviewing", "rejected", "ignored"]
+
+
+class JobUpdateIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    status: JobStatus | None = None
+    notes: Annotated[str, Field(max_length=5000)] | None = None
+
+
+class BulkStatusIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    ids: Annotated[list[StrictInt], Field(min_length=1, max_length=500)]
+    status: JobStatus
 
 
 class ConfigUpdateIn(BaseModel):
