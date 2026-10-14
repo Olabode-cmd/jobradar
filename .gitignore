@@ -1,0 +1,31 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+*.tsbuildinfo
+
+# python
+.venv/
+__pycache__/
+*.pyc
+
+# environment & personal config (never commit)
+.env
+.env.*
+!.env.example
+jobradar.config.json
+
+# local database
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# tooling
+.tooling/
+
+# misc
+.DS_Store
+*.log
+coverage/

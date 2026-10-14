@@ -1,0 +1,23 @@
+{
+  "profile": {
+    "role": "Software engineer",
+    "includeKeywords": [],
+    "excludeKeywords": [],
+    "rejectedPhrases": [],
+    "remoteOnly": true,
+    "blockedRegions": [],
+    "timezonesOverlap": null,
+    "minSalary": null,
+    "maxAgeDays": 14
+  },
+  "sources": {
+    "disabled": []
+  },
+  "companies": {
+    "tracked": []
+  },
+  "customSources": [],
+  "preferences": {
+    "userAgentContact": ""
+  }
+}

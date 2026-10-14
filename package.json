@@ -1,0 +1,13 @@
+{
+  "name": "jobradar",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:api": "cd backend && python -m uvicorn app.main:app --reload --port 8000",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.0.0"
+  }
+}
