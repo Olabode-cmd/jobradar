@@ -1,1 +1,1 @@
-"""JobRadar backend: FastAPI + Scrapling + SQLite."""
+__version__ = "0.1.0"

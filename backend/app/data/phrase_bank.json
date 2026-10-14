@@ -1,0 +1,21 @@
+{
+  "generic": ["must reside in", "security clearance", "must be a us resident"],
+  "regions": {
+    "US": [
+      "must be located in the united states",
+      "authorized to work in the united states",
+      "authorized to work in the us",
+      "us citizens",
+      "us only",
+      "must reside in the us",
+      "work authorization in the us",
+      "us work authorization",
+      "green card or citizenship"
+    ],
+    "UK": ["right to work in the uk", "must be based in the uk", "uk work visa sponsorship"],
+    "EU": ["must be based in the eu", "right to work in the eu"],
+    "CA": ["must be located in canada", "canadian citizens", "work authorization in canada"],
+    "AU": ["must be located in australia", "australian citizens", "work rights in australia"],
+    "SG": ["must be located in singapore", "singapore work pass"]
+  }
+}

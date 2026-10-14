@@ -1,6 +1,6 @@
-"""JobRadar CLI: fetch, doctor, sources, serve.
+"""JobRadar CLI: setup, fetch, doctor, sources, serve.
 
-Run from the backend directory: `python -m app.cli fetch`
+Run from the backend directory: `python -m app.cli setup`
 """
 
 from __future__ import annotations
@@ -10,11 +10,20 @@ from typing import Annotated
 import typer
 
 from .config import load_config
-from .pipeline import doctor as run_doctor
-from .pipeline import run_fetch
-from .sources.drivers import resolve_enabled_sources
+from .pipeline import run_doctor, run_fetch
+from .services.setup_service import run_setup
+from .sources import list_all_sources
 
 app = typer.Typer(help="JobRadar — local-first job aggregator.", no_args_is_help=True)
+
+
+@app.command()
+def setup() -> None:
+    """Create .env, the config file and the database if they are missing. Safe to re-run."""
+    created = run_setup()
+    for line in created:
+        typer.echo(line)
+    typer.echo("Setup complete." if created else "Already set up. Nothing to create.")
 
 
 @app.command()
@@ -42,7 +51,10 @@ def fetch(
         if stats.get("error"):
             typer.echo(f"  {source_id:<20} error: {stats['error']}")
         else:
-            typer.echo(f"  {source_id:<20} fetched {stats['fetched']:>4}  new {stats['new']:>4}  known {stats['known']:>4}  {stats['duration_ms']}ms")
+            typer.echo(
+                f"  {source_id:<20} fetched {stats['fetched']:>4}  new {stats['new']:>4}  "
+                f"known {stats['known']:>4}  {stats['duration_ms']}ms"
+            )
             total_new += stats["new"]
     typer.echo(f"{len(result['per_source'])} sources, {total_new} new jobs")
 
@@ -50,8 +62,7 @@ def fetch(
 @app.command()
 def doctor(report: Annotated[bool, typer.Option("--report", help="Emit a paste-able markdown report")] = False) -> None:
     """Check every enabled source and report pass/fail."""
-    config = load_config()
-    rows = run_doctor(config)
+    rows = run_doctor(load_config())
     if report:
         typer.echo("```markdown")
         typer.echo("## JobRadar doctor report")
@@ -72,12 +83,10 @@ def doctor(report: Annotated[bool, typer.Option("--report", help="Emit a paste-a
 
 @app.command()
 def sources() -> None:
-    """List enabled and disabled sources."""
-    config = load_config()
-    for source in resolve_enabled_sources(config):
-        typer.echo(f"  {source['id']:<20} {source.get('tier', 'B'):<3} {source.get('type', 'selector'):<10} enabled")
-    for disabled in config.sources.get("disabled", []):
-        typer.echo(f"  {disabled:<20} disabled")
+    """List every source and whether it is enabled."""
+    for source in list_all_sources(load_config()):
+        state = "enabled" if source["enabled"] else "disabled"
+        typer.echo(f"  {source['id']:<20} {source.get('tier', 'B'):<3} {source.get('type', 'selector'):<10} {state}")
 
 
 @app.command()
