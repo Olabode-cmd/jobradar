@@ -29,3 +29,6 @@ jobradar.config.json
 .DS_Store
 *.log
 coverage/
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat
