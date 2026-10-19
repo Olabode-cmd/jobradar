@@ -31,7 +31,7 @@ def verdict(fit=8, eligible="yes", reason="Good match."):
 class LlmPassTests(TempDbTestCase):
     def setUp(self):
         super().setUp()
-        process_batch(self.conn, [raw_job(1, "React Engineer"), raw_job(2, "Plumber", description="Pipes")],
+        process_batch(self.conn, [raw_job(1, "React Engineer"), raw_job(2, "Vue Engineer")],
                       BOARD, PROFILE, SeenIndex(), NOW, dry_run=False)
 
     def job(self, job_id):
@@ -53,7 +53,8 @@ class LlmPassTests(TempDbTestCase):
         self.assertIn("restricted (AI): Needs US residency.", json.loads(restricted[0]["score_reasons"]))
 
     def test_yes_upgrades_an_unclear_job(self):
-        self.assertEqual(self.job(2)["eligibility"], "unclear")
+        # Rows stored before ingest started dropping non-matching jobs can still be 'unclear'.
+        self.conn.execute("UPDATE jobs SET eligibility = 'unclear' WHERE id = 2")
         run_llm_pass(self.conn, ScriptedClient(verdict(), verdict(5, "yes")), PROFILE)
         self.assertEqual(self.job(2)["eligibility"], "eligible")
 

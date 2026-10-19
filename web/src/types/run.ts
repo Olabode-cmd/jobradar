@@ -7,6 +7,8 @@ export interface SourceRunStats {
   newJobs: number;
   known: number;
   skipped: number;
+  dropped: number;
+  dropReasons: Array<{ reason: string; count: number }>;
   error: string | null;
   durationMs: number | null;
 }

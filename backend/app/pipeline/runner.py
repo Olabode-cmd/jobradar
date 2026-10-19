@@ -77,7 +77,7 @@ def execute_run(
                 source, result = futures[future], future.result()
                 run_lock.touch(conn)
                 stats: dict[str, Any] = {
-                    "fetched": 0, "new": 0, "known": 0, "skipped": 0,
+                    "fetched": 0, "new": 0, "known": 0, "skipped": 0, "dropped": 0, "drop_reasons": {},
                     "error": result.error, "duration_ms": result.duration_ms,
                 }
                 if not result.error:

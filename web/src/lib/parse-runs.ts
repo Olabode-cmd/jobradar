@@ -12,6 +12,16 @@ import { asNumberOrNull, asString, asStringOrNull, isRecord } from './guards';
 const RUN_STATES: readonly RunState[] = ['idle', 'running', 'finished', 'failed'];
 const SOURCE_STATES: readonly SourceRunState[] = ['running', 'ok', 'error'];
 
+function parseDropReasons(raw: unknown): SourceRunStats['dropReasons'] {
+  if (!isRecord(raw)) return [];
+  return Object.entries(raw)
+    .flatMap(([reason, count]) => {
+      const value = asNumberOrNull(count);
+      return value !== null && value > 0 ? [{ reason, count: value }] : [];
+    })
+    .sort((a, b) => b.count - a.count);
+}
+
 function parseSource(raw: unknown): SourceRunStats | null {
   if (!isRecord(raw) || typeof raw.id !== 'string') return null;
   const error = asStringOrNull(raw.error);
@@ -23,6 +33,8 @@ function parseSource(raw: unknown): SourceRunStats | null {
     newJobs: asNumberOrNull(raw.new) ?? 0,
     known: asNumberOrNull(raw.known) ?? 0,
     skipped: asNumberOrNull(raw.skipped) ?? 0,
+    dropped: asNumberOrNull(raw.dropped) ?? 0,
+    dropReasons: parseDropReasons(raw.drop_reasons),
     error,
     durationMs: asNumberOrNull(raw.duration_ms),
   };

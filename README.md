@@ -59,12 +59,12 @@ Open <http://127.0.0.1:8000>. The first time, JobRadar asks four short questions
 
 ## Using it
 
-- **Inbox** — jobs you haven't triaged, best fit first. Use `J` / `K` to move, `O` to open the apply page, and `S`, `A` or `I` to save, mark applied or ignore.
+- **Inbox** — jobs you haven't triaged, best fit first, 50 per page. Use `J` / `K` to move, `O` to open the apply page, and `S`, `A` or `I` to save, mark applied or ignore. Only jobs that fit your profile are stored: the rest are dropped when they're fetched, and **Runs** shows how many and why.
 - **Runs** — fetch jobs now and see what each source returned.
 - **Sources** — switch boards on or off, and press **Test** to see what a board returns without saving anything.
 - **Companies** — paste a company's careers page link (Greenhouse, Lever, Ashby, Workable, Recruitee, SmartRecruiters, Teamtailor, Personio, BambooHR or Breezy) to check it on every run.
 - **Profile** — change what you're looking for any time. It edits `jobradar.config.json`.
-- **Settings** — optional AI key, and exports of your jobs.
+- **Settings** — optional AI key, exports of your jobs, and **Clear jobs** to start over (your profile and sources are kept).
 
 ### Command line
 
@@ -73,6 +73,7 @@ cd backend
 python -m app.cli fetch        # fetch now (add --dry-run to count without saving)
 python -m app.cli doctor       # check every source (add --report for a shareable summary)
 python -m app.cli sources      # list sources and whether they're on
+python -m app.cli reset-db     # delete all jobs and run history (add --yes to skip the prompt, --keep-triaged to keep jobs you've acted on)
 ```
 
 ## Optional: smarter scoring with an AI key
@@ -100,6 +101,7 @@ To back up, copy the config file and the database file.
 ## Working on it
 
 ```bash
+./start.sh           # API and dashboard together (Ctrl+C stops both)
 bun run dev:api      # API with auto-reload on :8000
 bun run dev:web      # dashboard dev server on :5173, proxies /api to :8000
 bun run test:api     # backend tests

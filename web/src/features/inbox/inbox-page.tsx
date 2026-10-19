@@ -13,7 +13,7 @@ import { JobList } from './job-list';
 import { STATUS_LABELS, StatusTabs } from './status-tabs';
 import { useInboxShortcuts } from './use-inbox-shortcuts';
 import { useJobDetail } from './use-job-detail';
-import { useJobsList, type InboxFilters } from './use-jobs-list';
+import { PAGE_SIZE, useJobsList, type InboxFilters } from './use-jobs-list';
 
 const SEARCH_DEBOUNCE_MS = 250;
 
@@ -50,10 +50,17 @@ export function InboxPage() {
     setCheckedIds(new Set());
   };
 
+  const changePage = (next: number) => {
+    list.goToPage(next);
+    setSelectedId(null);
+    setCheckedIds(new Set());
+  };
+
   const triage = async (ids: number[], to: JobStatus) => {
     const targets = items.filter((job) => ids.includes(job.id) && job.status !== to);
     if (targets.length === 0) return;
     const targetIds = targets.map((job) => job.id);
+    const emptiesPage = to !== status && targets.length === items.length;
 
     setActionError(null);
     if (activeId !== null && targetIds.includes(activeId) && to !== status) {
@@ -69,6 +76,8 @@ export function InboxPage() {
     try {
       if (targetIds.length === 1) await updateJob(targetIds[0]!, { status: to });
       else await bulkUpdateJobs(targetIds, to);
+      // The last row left this page: pull in the next jobs once the server has recorded the change.
+      if (emptiesPage) list.reload();
     } catch (failure) {
       setActionError(toApiError(failure).message);
       list.reload();
@@ -173,12 +182,13 @@ export function InboxPage() {
           error={list.error}
           activeId={activeId}
           checkedIds={checkedIds}
-          loadingMore={list.loadingMore}
+          page={list.page}
+          pageSize={PAGE_SIZE}
           emptyTitle={emptyTitle}
           emptyHint={emptyHint}
           onSelect={setSelectedId}
           onToggleChecked={toggleChecked}
-          onLoadMore={() => void list.loadMore()}
+          onPageChange={changePage}
           onRetry={list.reload}
         />
         <JobDetailPanel

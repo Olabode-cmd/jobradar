@@ -8,6 +8,7 @@ import { Button } from '../../components/ui/button';
 import { EmptyState } from '../../components/ui/empty-state';
 import type { JobSummary } from '../../types/job';
 import { JobRow } from './job-row';
+import { PaginationBar } from './pagination-bar';
 
 interface JobListProps {
   items: JobSummary[];
@@ -16,12 +17,13 @@ interface JobListProps {
   error: ApiError | null;
   activeId: number | null;
   checkedIds: ReadonlySet<number>;
-  loadingMore: boolean;
+  page: number;
+  pageSize: number;
   emptyTitle: string;
   emptyHint: ReactNode;
   onSelect: (id: number) => void;
   onToggleChecked: (id: number) => void;
-  onLoadMore: () => void;
+  onPageChange: (page: number) => void;
   onRetry: () => void;
 }
 
@@ -64,6 +66,21 @@ export function JobList(props: JobListProps) {
 
   return (
     <div>
+      {status === 'error' ? (
+        <div className="mb-4">
+          <Banner
+            tone="error"
+            title="Couldn't load that page"
+            action={
+              <Button variant="ghost" onClick={props.onRetry} className="h-9 px-4">
+                Try again
+              </Button>
+            }
+          >
+            {props.error?.message}
+          </Banner>
+        </div>
+      ) : null}
       <ul className="overflow-hidden rounded-xl border border-border border-b-0 bg-surface">
         {items.map((job) => (
           <JobRow
@@ -76,21 +93,14 @@ export function JobList(props: JobListProps) {
           />
         ))}
       </ul>
-      <div className="mt-4 flex items-center justify-between gap-4 text-sm text-muted">
-        <p>
-          Showing {items.length} of {props.total}
-        </p>
-        {items.length < props.total ? (
-          <Button
-            variant="ghost"
-            onClick={props.onLoadMore}
-            disabled={props.loadingMore}
-            className="h-9 px-4"
-          >
-            {props.loadingMore ? 'Loading…' : 'Load more'}
-          </Button>
-        ) : null}
-      </div>
+      <PaginationBar
+        page={props.page}
+        pageSize={props.pageSize}
+        total={props.total}
+        shown={items.length}
+        busy={status === 'loading'}
+        onPageChange={props.onPageChange}
+      />
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 
 import { SectionPanel } from '../../components/ui/section-panel';
 import type { Settings } from '../../types/settings';
+import { ClearDataPanel } from './clear-data-panel';
 
 const LINK_CLASSES =
   'inline-flex h-11 items-center gap-2 rounded-lg border border-border-dim px-5 text-sm font-bold transition-colors hover:border-muted';
@@ -20,7 +21,7 @@ export function DataSection({ settings }: { settings: Settings }) {
   return (
     <SectionPanel
       title="Your data"
-      description="Everything stays on this computer. Export your jobs, or back up by copying the two files below."
+      description="Everything stays on this computer. Export your jobs, back up by copying the two files below, or clear your jobs and start over."
     >
       <div className="flex flex-wrap gap-3">
         <a href="/api/export?format=csv" download className={LINK_CLASSES}>
@@ -44,6 +45,7 @@ export function DataSection({ settings }: { settings: Settings }) {
         <PathRow label="Jobs and history" value={settings.dbPath} />
         <PathRow label="Search settings" value={settings.configPath} />
       </dl>
+      <ClearDataPanel />
     </SectionPanel>
   );
 }

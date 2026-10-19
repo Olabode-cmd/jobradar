@@ -16,7 +16,7 @@ class JobsRepoTests(TempDbTestCase):
             [
                 raw_job(1, "React Engineer"),
                 raw_job(2, "Vue Engineer", company="Globex"),
-                raw_job(3, "Plumber", company="Pipes Ltd", description="Pipes", remote=False),
+                raw_job(3, "Plumbing Developer", company="Pipes Ltd", description="React for pipes", remote=False),
             ],
             BOARD, PROFILE, SeenIndex(), NOW, dry_run=False,
         )
@@ -63,6 +63,11 @@ class JobsRepoTests(TempDbTestCase):
         self.assertEqual(jobs.bulk_update_status(self.conn, [1, 2], "ignored"), 2)
         counts = jobs.status_counts(self.conn)
         self.assertEqual((counts["ignored"], counts["new"]), (2, 1))
+
+    def test_counts_follow_the_eligibility_filter(self):
+        self.conn.execute("UPDATE jobs SET eligibility = 'restricted' WHERE id = 3")
+        self.assertEqual(jobs.status_counts(self.conn)["new"], 3)
+        self.assertEqual(jobs.status_counts(self.conn, ("eligible", "unclear"))["new"], 2)
 
     def test_ignore_company_only_touches_new_jobs_of_that_company(self):
         jobs.update_job(self.conn, 1, "saved", None)

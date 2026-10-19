@@ -136,7 +136,8 @@ Nigerian and Kenyan boards, off by default, one click in the presets drawer: Job
 
 - Onboarding writes it. Role templates (software engineer, designer, marketing, data analyst) prefill it.
 - Blocked regions expand through a repo phrase bank into rejected phrases ("must reside in", "authorized to work in the US", "US citizens", "security clearance") — the personalization that makes results actually relevant, generalized.
-- Rules run first, free; they set eligibility: eligible / restricted / unclear. **Store-then-filter:** everything is stored; the Inbox filters at query time. This makes the profile editor's live keep/drop counts possible and lets you audit false negatives.
+- Rules run first, free; they set eligibility: eligible / restricted / unclear. **Filter-then-store:** only `eligible` jobs are written to the database; restricted and unclear ones are dropped at ingest. Each run reports how many were dropped per source and the top reasons, and `fetch --dry-run` shows the same without storing, so false negatives can still be audited. A profile change applies to the next fetch; use Settings → Clear jobs (or `reset-db`) to re-fetch under the new profile.
+- Keyword matching is whole-word (`\blead\b`, not "misleading"; `react` also matches `ReactJS`). Exclude keywords check the title. A job passes the include rule when a keyword is in the title, or when at least two distinct keywords (or all, if fewer are listed) are in the description.
 
 ### 6.4 Eligibility and scoring
 
@@ -331,7 +332,7 @@ Estimates assume focused solo work. Each phase ends with something usable.
 - SQLite via stdlib — the lowest-friction DB is the one with nothing to install.
 - No bundled source requires an API key; the only key is `API_KEY` (provider-agnostic, optional).
 - Scrapling is the scraping engine for every HTML/JS source; adaptive selectors + dev-mode fixtures absorb board redesigns.
-- Store-then-filter: eligibility is computed and stored per job; the Inbox filters at query time.
+- Filter-then-store (replaces store-then-filter): eligibility is computed at ingest and only eligible jobs are stored. Dropped jobs are counted with reasons in run stats.
 - "New" is a status, not a time window.
 - Dedupe hash excludes location; company normalization via `company_key`.
 - Source definitions live in the repo (community-maintained); personal state lives in the config file + SQLite.

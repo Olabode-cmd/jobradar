@@ -16,18 +16,31 @@ export function useJobsList(filters: InboxFilters) {
   const [counts, setCounts] = useState<StatusCounts | null>(null);
   const [status, setStatus] = useState<LoadStatus>('loading');
   const [error, setError] = useState<ApiError | null>(null);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
+  // The page is remembered together with the filters it was chosen under, so changing any
+  // filter drops back to page 1 without a second fetch.
+  const [pageState, setPageState] = useState({ filters, index: 0 });
+  const page = pageState.filters === filters ? pageState.index : 0;
+
+  const goToPage = useCallback(
+    (index: number) => setPageState({ filters, index: Math.max(0, index) }),
+    [filters],
+  );
 
   useEffect(() => {
     let cancelled = false;
     setStatus('loading');
-    fetchJobs({ ...filters, limit: PAGE_SIZE, offset: 0 }).then(
-      (page) => {
+    fetchJobs({ ...filters, limit: PAGE_SIZE, offset: page * PAGE_SIZE }).then(
+      (result) => {
         if (cancelled) return;
-        setItems(page.items);
-        setTotal(page.total);
-        setCounts(page.counts);
+        // Triaging can empty the last page; step back rather than show an empty list.
+        if (result.items.length === 0 && result.total > 0 && page > 0) {
+          setPageState({ filters, index: Math.ceil(result.total / PAGE_SIZE) - 1 });
+          return;
+        }
+        setItems(result.items);
+        setTotal(result.total);
+        setCounts(result.counts);
         setError(null);
         setStatus('ready');
       },
@@ -40,26 +53,9 @@ export function useJobsList(filters: InboxFilters) {
     return () => {
       cancelled = true;
     };
-  }, [filters, reloadToken]);
+  }, [filters, page, reloadToken]);
 
   const reload = useCallback(() => setReloadToken((token) => token + 1), []);
-
-  const loadMore = useCallback(async () => {
-    setLoadingMore(true);
-    try {
-      const page = await fetchJobs({ ...filters, limit: PAGE_SIZE, offset: items.length });
-      setItems((current) => {
-        const known = new Set(current.map((job) => job.id));
-        return [...current, ...page.items.filter((job) => !known.has(job.id))];
-      });
-      setTotal(page.total);
-      setCounts(page.counts);
-    } catch (failure) {
-      setError(toApiError(failure));
-    } finally {
-      setLoadingMore(false);
-    }
-  }, [filters, items.length]);
 
   // Mirrors a status change locally so the list responds before the API round trip finishes.
   const applyStatusChange = useCallback(
@@ -87,5 +83,5 @@ export function useJobsList(filters: InboxFilters) {
     [filters.status, items],
   );
 
-  return { items, total, counts, status, error, loadingMore, reload, loadMore, applyStatusChange };
+  return { items, total, counts, status, error, page, goToPage, reload, applyStatusChange };
 }

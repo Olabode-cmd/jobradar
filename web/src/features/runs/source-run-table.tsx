@@ -5,6 +5,8 @@ import { Badge } from '../../components/ui/badge';
 import { formatDuration } from '../../lib/format-date';
 import type { SourceRunStats } from '../../types/run';
 
+const MAX_REASONS_SHOWN = 3;
+
 function StateCell({ source }: { source: SourceRunStats }) {
   if (source.state === 'running') {
     return (
@@ -39,6 +41,7 @@ export function SourceRunTable({ sources }: { sources: SourceRunStats[] }) {
           <th className="py-2 pr-4 text-right font-bold">Fetched</th>
           <th className="py-2 pr-4 text-right font-bold">New</th>
           <th className="py-2 pr-4 text-right font-bold">Known</th>
+          <th className="py-2 pr-4 text-right font-bold">Dropped</th>
           <th className="py-2 text-right font-bold">Time</th>
         </tr>
       </thead>
@@ -50,6 +53,15 @@ export function SourceRunTable({ sources }: { sources: SourceRunStats[] }) {
               {source.error ? (
                 <p className="mt-1 text-xs font-medium text-danger">{source.error}</p>
               ) : null}
+              {source.dropReasons.length > 0 ? (
+                <ul className="mt-1 space-y-0.5 text-xs font-medium text-muted">
+                  {source.dropReasons.slice(0, MAX_REASONS_SHOWN).map(({ reason, count }) => (
+                    <li key={reason}>
+                      {count} × {reason}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
             </td>
             <td className="py-2.5 pr-4">
               <StateCell source={source} />
@@ -57,6 +69,7 @@ export function SourceRunTable({ sources }: { sources: SourceRunStats[] }) {
             <td className="py-2.5 pr-4 text-right">{source.fetched}</td>
             <td className="py-2.5 pr-4 text-right font-bold text-success">{source.newJobs}</td>
             <td className="py-2.5 pr-4 text-right text-muted">{source.known}</td>
+            <td className="py-2.5 pr-4 text-right text-muted">{source.dropped}</td>
             <td className="py-2.5 text-right text-muted">{formatDuration(source.durationMs)}</td>
           </tr>
         ))}

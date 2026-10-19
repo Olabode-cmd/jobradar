@@ -1,4 +1,4 @@
-"""JobRadar CLI: setup, fetch, doctor, sources, serve.
+"""JobRadar CLI: setup, fetch, doctor, sources, reset-db, serve.
 
 Run from the backend directory: `python -m app.cli setup`
 """
@@ -10,7 +10,10 @@ from typing import Annotated
 import typer
 
 from .config import load_config
+from .core.errors import ConflictError
+from .db import default_db_path, open_db
 from .pipeline import run_doctor, run_fetch
+from .services.data_service import clear_data
 from .services.setup_service import run_setup
 from .sources import list_all_sources
 
@@ -47,16 +50,21 @@ def fetch(
     if result.get("dry_run"):
         typer.echo("dry run: nothing stored")
     total_new = 0
+    total_dropped = 0
     for source_id, stats in result["per_source"].items():
         if stats.get("error"):
             typer.echo(f"  {source_id:<20} error: {stats['error']}")
         else:
             typer.echo(
                 f"  {source_id:<20} fetched {stats['fetched']:>4}  new {stats['new']:>4}  "
-                f"known {stats['known']:>4}  {stats['duration_ms']}ms"
+                f"known {stats['known']:>4}  dropped {stats['dropped']:>4}  {stats['duration_ms']}ms"
             )
             total_new += stats["new"]
-    typer.echo(f"{len(result['per_source'])} sources, {total_new} new jobs")
+            total_dropped += stats["dropped"]
+    typer.echo(
+        f"{len(result['per_source'])} sources, {total_new} new jobs, "
+        f"{total_dropped} dropped by your profile"
+    )
 
 
 @app.command()
@@ -87,6 +95,29 @@ def sources() -> None:
     for source in list_all_sources(load_config()):
         state = "enabled" if source["enabled"] else "disabled"
         typer.echo(f"  {source['id']:<20} {source.get('tier', 'B'):<3} {source.get('type', 'selector'):<10} {state}")
+
+
+@app.command(name="reset-db")
+def reset_db(
+    yes: Annotated[bool, typer.Option("--yes", help="Skip the confirmation prompt")] = False,
+    keep_triaged: Annotated[
+        bool, typer.Option("--keep-triaged", help="Keep jobs you have saved, applied to, rejected or ignored")
+    ] = False,
+) -> None:
+    """Delete stored jobs and run history. Your config file and API key are not touched."""
+    scope = "every untriaged job" if keep_triaged else "every job"
+    if not yes and not typer.confirm(f"Delete {scope} and all run history from {default_db_path()}?"):
+        typer.echo("Cancelled. Nothing deleted.")
+        raise typer.Exit(1)
+    conn = open_db()
+    try:
+        result = clear_data(conn, keep_triaged)
+    except ConflictError as exc:
+        typer.echo(f"blocked: {exc}", err=True)
+        raise typer.Exit(1)
+    finally:
+        conn.close()
+    typer.echo(f"Deleted {result['deleted']} jobs, kept {result['kept']}.")
 
 
 @app.command()

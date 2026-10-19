@@ -121,9 +121,11 @@ def list_jobs(conn: sqlite3.Connection, filters: JobFilters) -> tuple[list[dict[
     return [_summary(row, sources.get(row["id"], [])) for row in rows], total
 
 
-def status_counts(conn: sqlite3.Connection) -> dict[str, int]:
+def status_counts(conn: sqlite3.Connection, eligibility: tuple[str, ...] = ()) -> dict[str, int]:
+    """Jobs per status. Pass the list's eligibility filter so the tabs agree with what the list shows."""
+    where = f" WHERE eligibility IN ({','.join('?' * len(eligibility))})" if eligibility else ""
     counts = {status: 0 for status in STATUSES}
-    for row in conn.execute("SELECT status, COUNT(*) AS n FROM jobs GROUP BY status"):
+    for row in conn.execute(f"SELECT status, COUNT(*) AS n FROM jobs{where} GROUP BY status", eligibility):
         counts[row["status"]] = row["n"]
     return counts
 

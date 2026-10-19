@@ -20,7 +20,7 @@ def _with_email_flags(job: dict[str, Any]) -> dict[str, Any]:
 
 def list_jobs(conn: sqlite3.Connection, filters: JobFilters) -> dict[str, Any]:
     items, total = repo.list_jobs(conn, filters)
-    return {"items": items, "total": total, "counts": repo.status_counts(conn)}
+    return {"items": items, "total": total, "counts": repo.status_counts(conn, filters.eligibility)}
 
 
 def get_job(conn: sqlite3.Connection, job_id: int) -> dict[str, Any]:

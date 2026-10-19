@@ -1,13 +1,15 @@
 """Normalize, dedupe, judge and store one source's records.
 
-Store-then-filter: every fetched job is stored with its eligibility computed at insert
-time; the dashboard filters at query time. That makes profile tuning and audit
-("what did RemoteOK drop today?") possible.
+Filter-then-store: a job that fails the profile rules is dropped before it reaches the
+database. Drops are counted, with their reasons, in the run stats so a run can still
+answer "what did RemoteOK drop today?". Dropped jobs are not remembered, so a profile
+change takes effect on the next fetch.
 """
 
 from __future__ import annotations
 
 import sqlite3
+from collections import Counter
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -56,9 +58,10 @@ def process_batch(
     index: SeenIndex,
     now: str,
     dry_run: bool,
-) -> dict[str, int]:
-    """Returns fetched/new/known/skipped counts for the batch."""
-    stats = {"fetched": len(records), "new": 0, "known": 0, "skipped": 0}
+) -> dict[str, Any]:
+    """Returns fetched/new/known/skipped/dropped counts for the batch, plus `drop_reasons`."""
+    stats: dict[str, Any] = {"fetched": len(records), "new": 0, "known": 0, "skipped": 0, "dropped": 0}
+    drop_reasons: Counter[str] = Counter()
 
     for raw in records:
         if not is_usable(raw):
@@ -76,8 +79,12 @@ def process_batch(
             continue
 
         job["eligibility"], reason = evaluate(job, profile)
-        job["score"], reasons = score_job(job, profile)
-        job["score_reasons"] = [f"{job['eligibility']}: {reason}", *reasons] if reason else reasons
+        if job["eligibility"] != "eligible":
+            stats["dropped"] += 1
+            drop_reasons[reason or job["eligibility"]] += 1
+            continue
+
+        job["score"], job["score_reasons"] = score_job(job, profile)
 
         if dry_run:
             index.remember(url, digest)
@@ -87,4 +94,5 @@ def process_batch(
             store.attach_source(conn, job_id, source["id"], url, now)
         stats["new"] += 1
 
+    stats["drop_reasons"] = dict(drop_reasons.most_common())
     return stats
