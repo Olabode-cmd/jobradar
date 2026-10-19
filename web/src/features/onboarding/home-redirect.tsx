@@ -3,14 +3,18 @@ import { Navigate } from 'react-router-dom';
 
 import { fetchConfig } from '../../api/config-api';
 
-/** First visit goes to the setup questions; once a config file exists it goes to the inbox. */
+/** Until a job title is saved, home goes to the setup questions; nothing is fetched before then. */
 export function HomeRedirect() {
   const [target, setTarget] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     fetchConfig().then(
-      (snapshot) => !cancelled && setTarget(snapshot.exists ? '/inbox' : '/welcome'),
+      (snapshot) => {
+        if (cancelled) return;
+        const ready = snapshot.exists && snapshot.editable.profile.role.trim().length > 0;
+        setTarget(ready ? '/inbox' : '/welcome');
+      },
       // If the API is unreachable the inbox shows the real error, which is more useful than a blank page.
       () => !cancelled && setTarget('/inbox'),
     );

@@ -15,6 +15,9 @@ SYSTEM_PROMPT = (
 MAX_DESCRIPTION_CHARS = 4000
 MAX_REASON_CHARS = 200
 _VERDICTS = ("yes", "no", "unclear")
+_RELOCATION_LINE = (
+    "- Open to relocating, but an on-site job only fits if the employer offers relocation help or pay\n"
+)
 _JSON_OBJECT = re.compile(r"\{.*\}", re.DOTALL)
 
 
@@ -37,6 +40,7 @@ def build_prompt(profile: dict[str, Any], job: dict[str, Any]) -> str:
         f"- Target role: {profile.get('role') or 'not stated'}\n"
         f"- Wanted skills: {wanted}\n"
         f"- Must be remote: {'yes' if profile.get('remoteOnly') else 'no'}\n"
+        f"{_RELOCATION_LINE if profile.get('openToRelocation') else ''}"
         f"- Cannot work in (no right to work there): {blocked}\n\n"
         "Job posting:\n"
         f"- Title: {job.get('title')}\n"

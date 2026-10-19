@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictFloat, Stri
 
 MAX_LIST_ITEMS = 200
 MAX_ITEM_LENGTH = 120
+MAX_COUNTRIES = 30
 
 
 def _clean_list(values: list[str]) -> list[str]:
@@ -34,6 +35,8 @@ class ProfileIn(BaseModel):
     excludeKeywords: TermList
     rejectedPhrases: TermList
     remoteOnly: StrictBool
+    openToRelocation: StrictBool = False
+    targetCountries: Annotated[list[Annotated[str, Field(pattern=r"^[A-Za-z]{2}$")]], Field(max_length=MAX_COUNTRIES)] = []
     blockedRegions: TermList
     timezonesOverlap: Annotated[str, Field(max_length=MAX_ITEM_LENGTH)] | None
     minSalary: Annotated[StrictInt | StrictFloat, Field(ge=0)] | None
@@ -43,6 +46,11 @@ class ProfileIn(BaseModel):
     @classmethod
     def _tidy_lists(cls, values: list[str]) -> list[str]:
         return _clean_list(values)
+
+    @field_validator("targetCountries", mode="after")
+    @classmethod
+    def _upper_countries(cls, values: list[str]) -> list[str]:
+        return list(dict.fromkeys(value.upper() for value in values))
 
     @field_validator("timezonesOverlap", mode="after")
     @classmethod

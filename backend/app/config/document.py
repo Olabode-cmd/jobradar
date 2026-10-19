@@ -22,6 +22,8 @@ def default_config() -> dict[str, Any]:
             "excludeKeywords": [],
             "rejectedPhrases": [],
             "remoteOnly": True,
+            "openToRelocation": False,
+            "targetCountries": [],
             "blockedRegions": [],
             "timezonesOverlap": None,
             "minSalary": None,

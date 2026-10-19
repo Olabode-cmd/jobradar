@@ -1,4 +1,5 @@
 import type { EditableConfig } from '../types/config';
+import { isCountryCode } from './countries';
 import { normalizeTerms } from './term-list';
 
 export const MAX_AGE_DAYS_LIMIT = 3650;
@@ -12,6 +13,8 @@ export interface ProfileDraft {
   excludeKeywords: string[];
   rejectedPhrases: string[];
   remoteOnly: boolean;
+  openToRelocation: boolean;
+  targetCountries: string[];
   blockedRegions: string[];
   timezonesOverlap: string;
   minSalary: string;
@@ -28,6 +31,8 @@ export function toDraft({ profile, preferences }: EditableConfig): ProfileDraft 
     excludeKeywords: profile.excludeKeywords,
     rejectedPhrases: profile.rejectedPhrases,
     remoteOnly: profile.remoteOnly,
+    openToRelocation: profile.openToRelocation,
+    targetCountries: profile.targetCountries,
     blockedRegions: profile.blockedRegions,
     timezonesOverlap: profile.timezonesOverlap ?? '',
     minSalary: profile.minSalary === null ? '' : String(profile.minSalary),
@@ -53,6 +58,8 @@ export function toEditable(draft: ProfileDraft): EditableConfig {
       excludeKeywords: normalizeTerms(draft.excludeKeywords),
       rejectedPhrases: normalizeTerms(draft.rejectedPhrases),
       remoteOnly: draft.remoteOnly,
+      openToRelocation: draft.openToRelocation,
+      targetCountries: normalizeTerms(draft.targetCountries).map((code) => code.toUpperCase()),
       blockedRegions: normalizeTerms(draft.blockedRegions),
       timezonesOverlap: timezones || null,
       minSalary: parseOptionalNumber(draft.minSalary),
@@ -84,6 +91,11 @@ export function validateDraft(draft: ProfileDraft): DraftErrors {
     if (!Number.isFinite(amount) || amount < 0) {
       errors.minSalary = 'Use a number of 0 or more, or leave it empty.';
     }
+  }
+
+  const badCountry = draft.targetCountries.find((code) => !isCountryCode(code));
+  if (badCountry !== undefined) {
+    errors.targetCountries = `Use two-letter country codes such as DE or JP ("${badCountry}" isn't one).`;
   }
 
   if (draft.timezonesOverlap.trim().length > MAX_TEXT_LENGTH) {

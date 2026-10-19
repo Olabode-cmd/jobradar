@@ -17,4 +17,6 @@ def get_config() -> dict[str, Any]:
 
 @router.put("")
 def update_config(update: ConfigUpdateIn) -> dict[str, Any]:
-    return config_service.update_config(update.profile.model_dump(), update.preferences.model_dump())
+    # Optional profile fields are written only when sent, so an older dashboard can't reset them.
+    profile = update.profile.model_dump(exclude_unset=True)
+    return config_service.update_config(profile, update.preferences.model_dump())

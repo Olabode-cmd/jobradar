@@ -58,6 +58,7 @@ def normalize_job(raw: dict[str, Any], source: dict[str, Any], now: str) -> dict
         "title": title,
         "location_text": str(location),
         "remote_status": "remote" if infer_remote(raw) else None,
+        "offers_relocation": bool(raw.get("relocation")),
         "region_restrictions": raw.get("region_restrictions"),
         "posted_at": posted,
         "first_seen_at": first_seen,

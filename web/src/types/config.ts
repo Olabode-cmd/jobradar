@@ -4,6 +4,9 @@ export interface Profile {
   excludeKeywords: string[];
   rejectedPhrases: string[];
   remoteOnly: boolean;
+  openToRelocation: boolean;
+  /** ISO-style country codes (DE, NL, …) that country-driven sources search in. */
+  targetCountries: string[];
   blockedRegions: string[];
   timezonesOverlap: string | null;
   minSalary: number | null;

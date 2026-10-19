@@ -35,6 +35,8 @@ _PROFILE_CHECKS = [
     ("maxAgeDays", (int,), True),
     ("minSalary", (int, float), True),
     ("remoteOnly", (bool,), False),
+    ("openToRelocation", (bool,), False),
+    ("targetCountries", (list,), False),
     ("includeKeywords", (list,), False),
     ("excludeKeywords", (list,), False),
     ("rejectedPhrases", (list,), False),

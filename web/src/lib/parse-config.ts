@@ -18,6 +18,8 @@ function parseProfile(raw: unknown): Profile {
     excludeKeywords: asStringList(source.excludeKeywords),
     rejectedPhrases: asStringList(source.rejectedPhrases),
     remoteOnly: typeof source.remoteOnly === 'boolean' ? source.remoteOnly : true,
+    openToRelocation: source.openToRelocation === true,
+    targetCountries: asStringList(source.targetCountries).map((code) => code.toUpperCase()),
     blockedRegions: asStringList(source.blockedRegions),
     timezonesOverlap: toTimezoneText(source.timezonesOverlap),
     minSalary: asNumberOrNull(source.minSalary),

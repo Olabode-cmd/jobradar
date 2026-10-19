@@ -12,6 +12,7 @@ import typer
 from .config import load_config
 from .core.errors import ConflictError
 from .db import default_db_path, open_db
+from .domain.profile import ProfileIncompleteError
 from .pipeline import run_doctor, run_fetch
 from .services.data_service import clear_data
 from .services.setup_service import run_setup
@@ -40,7 +41,14 @@ def fetch(
     for error in config.errors:
         typer.echo(f"warning: {error}", err=True)
 
-    result = run_fetch(config, only=sources, dry_run=dry_run, force=force)
+    if not config.present:
+        typer.echo("No jobradar.config.json yet. Run `python -m app.cli setup`, then fill in your profile.", err=True)
+        raise typer.Exit(1)
+    try:
+        result = run_fetch(config, only=sources, dry_run=dry_run, force=force)
+    except ProfileIncompleteError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(1)
 
     if result["status"] == "blocked":
         typer.echo(f"blocked: {result['message']}", err=True)
@@ -70,7 +78,11 @@ def fetch(
 @app.command()
 def doctor(report: Annotated[bool, typer.Option("--report", help="Emit a paste-able markdown report")] = False) -> None:
     """Check every enabled source and report pass/fail."""
-    rows = run_doctor(load_config())
+    try:
+        rows = run_doctor(load_config())
+    except ProfileIncompleteError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(1)
     if report:
         typer.echo("```markdown")
         typer.echo("## JobRadar doctor report")

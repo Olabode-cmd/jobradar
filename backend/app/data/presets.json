@@ -76,6 +76,16 @@
     "defaultEnabled": true
   },
   {
+    "id": "arbeitnow-visa",
+    "name": "Arbeitnow (visa sponsorship)",
+    "tier": "A",
+    "kind": "board",
+    "type": "api",
+    "startUrl": "https://www.arbeitnow.com/api/job-board-api?visa_sponsorship=true",
+    "timeout": 30,
+    "defaultEnabled": true
+  },
+  {
     "id": "hackernews",
     "name": "HN: Who is hiring",
     "tier": "A",
@@ -83,5 +93,65 @@
     "type": "hn",
     "timeout": 30,
     "defaultEnabled": true
+  },
+  {
+    "id": "relocateme",
+    "name": "Relocate.me",
+    "tier": "B",
+    "kind": "board",
+    "type": "selector",
+    "startUrl": "https://relocate.me/international-jobs?country%5B%5D={country}",
+    "countryKey": "relocateme",
+    "itemSelector": "div.jobs-list__job:not(.job_featured)",
+    "fields": {
+      "title": ".job__title a b",
+      "url": ".job__title a",
+      "company": "div.job__company:nth-of-type(2) p",
+      "location": "div.job__company:nth-of-type(1) p",
+      "description": ".job__preview"
+    },
+    "allRelocation": true,
+    "timeout": 30,
+    "defaultEnabled": true
+  },
+  {
+    "id": "japandev",
+    "name": "Japan Dev (apply from abroad)",
+    "onlyForCountries": ["JP"],
+    "tier": "B",
+    "kind": "board",
+    "type": "selector",
+    "startUrl": "https://japan-dev.com/japan-jobs-relocation",
+    "itemSelector": "li.job-item",
+    "fields": {
+      "title": "a.job-item__title",
+      "url": "a.job-item__title",
+      "company": ".company-logo__inner::attr(alt)",
+      "location": ".job__tag-desc",
+      "description": ".job-item__contract-type"
+    },
+    "allRelocation": true,
+    "timeout": 30,
+    "defaultEnabled": true
+  },
+  {
+    "id": "indeed",
+    "name": "Indeed",
+    "tier": "C",
+    "kind": "board",
+    "type": "indeed",
+    "countryKey": "indeed",
+    "timeout": 90,
+    "defaultEnabled": false
+  },
+  {
+    "id": "wellfound",
+    "name": "Wellfound",
+    "tier": "C",
+    "kind": "board",
+    "type": "wellfound",
+    "countryKey": "wellfound",
+    "timeout": 90,
+    "defaultEnabled": false
   }
 ]

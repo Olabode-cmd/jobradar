@@ -1,0 +1,10 @@
+{
+  "DE": { "name": "Germany", "indeed": { "host": "de.indeed.com", "location": "Deutschland" }, "wellfound": "germany", "relocateme": "Germany" },
+  "NL": { "name": "Netherlands", "indeed": { "host": "nl.indeed.com", "location": "Nederland" }, "wellfound": "netherlands", "relocateme": "Netherlands" },
+  "CA": { "name": "Canada", "indeed": { "host": "ca.indeed.com", "location": "Canada" }, "wellfound": "canada", "relocateme": "Canada" },
+  "JP": { "name": "Japan", "indeed": { "host": "jp.indeed.com", "location": "Japan" }, "wellfound": "japan", "relocateme": "Japan" },
+  "UK": { "name": "United Kingdom", "indeed": { "host": "uk.indeed.com", "location": "United Kingdom" }, "wellfound": "united-kingdom", "relocateme": "United Kingdom" },
+  "ES": { "name": "Spain", "indeed": { "host": "es.indeed.com", "location": "España" }, "wellfound": "spain", "relocateme": "Spain" },
+  "PT": { "name": "Portugal", "indeed": { "host": "pt.indeed.com", "location": "Portugal" }, "wellfound": "portugal", "relocateme": "Portugal" },
+  "CY": { "name": "Cyprus", "wellfound": "cyprus", "relocateme": "Cyprus" }
+}

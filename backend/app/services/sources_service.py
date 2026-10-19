@@ -10,6 +10,7 @@ from ..config import AppConfig, load_config, mutate_config
 from ..core.errors import NotFoundError
 from ..db.repositories import health_state
 from ..domain.job import is_usable, normalize_job
+from ..domain.profile import require_profile
 from ..sources import FetchContext, fetch_source, list_all_sources
 from ..sources.drivers.ats import tracked_for_provider
 
@@ -77,6 +78,7 @@ def set_enabled(conn: sqlite3.Connection, source_id: str, enabled: bool) -> dict
 def test_source(source_id: str) -> dict[str, Any]:
     """Fetch once and show the first few parsed jobs without saving anything."""
     config = load_config()
+    require_profile(config.profile)
     source = _find(config, source_id)
     result = fetch_source(source, FetchContext.from_config(config))
 

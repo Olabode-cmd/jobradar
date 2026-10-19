@@ -21,6 +21,8 @@ const TYPE_LABELS: Record<string, string> = {
   rss: 'RSS feed',
   ats: 'Company boards',
   hn: 'Hacker News',
+  indeed: 'Search (browser)',
+  wellfound: 'Search (browser)',
   selector: 'Web page',
 };
 

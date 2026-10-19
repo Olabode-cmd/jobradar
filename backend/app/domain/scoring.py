@@ -7,10 +7,12 @@ from datetime import UTC, datetime
 from typing import Any
 
 from .dates import parse_datetime
+from .relocation import job_offers_relocation
 
 TITLE_MATCH = 3.0
 BODY_MATCH = 1.5
 REMOTE_BONUS = 1.0
+RELOCATION_BONUS = 1.5
 APPLY_LINK_BONUS = 0.5
 OWN_BOARD_BONUS = 0.5
 SENIORITY_MATCH = 1.5
@@ -58,6 +60,10 @@ def score_job(job: dict[str, Any], profile: dict[str, Any]) -> tuple[float, list
     if job.get("remote_status"):
         score += REMOTE_BONUS
         reasons.append("remote")
+
+    if profile.get("openToRelocation") and not job.get("remote_status") and job_offers_relocation(job):
+        score += RELOCATION_BONUS
+        reasons.append("offers relocation")
 
     if job.get("apply_url"):
         score += APPLY_LINK_BONUS

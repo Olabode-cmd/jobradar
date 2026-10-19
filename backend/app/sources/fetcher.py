@@ -5,7 +5,7 @@ from __future__ import annotations
 import time
 from typing import Any
 
-from .drivers import ats, hackernews, json_board, rss, selector
+from .drivers import ats, hackernews, indeed, json_board, rss, selector, wellfound
 from .models import FetchContext, SourceResult
 
 
@@ -23,6 +23,10 @@ def fetch_source(source: dict[str, Any], ctx: FetchContext) -> SourceResult:
             records, companies = ats.fetch(source, ctx)
         elif kind == "hn":
             records = hackernews.fetch(source, ctx)
+        elif kind == "indeed":
+            records = indeed.fetch(source, ctx)
+        elif kind == "wellfound":
+            records = wellfound.fetch(source, ctx)
         else:
             records = selector.fetch(source, ctx)
         return SourceResult(source["id"], records, None, int((time.perf_counter() - t0) * 1000), companies)

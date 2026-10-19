@@ -1,3 +1,4 @@
+import { isCountryCode } from '../../lib/countries';
 import { normalizeTerms } from '../../lib/term-list';
 import type { EditableConfig } from '../../types/config';
 
@@ -7,6 +8,8 @@ export interface OnboardingAnswers {
   role: string;
   keywords: string[];
   remoteOnly: boolean;
+  openToRelocation: boolean;
+  targetCountries: string[];
   blockedRegions: string[];
   seniority: Seniority;
 }
@@ -36,6 +39,8 @@ export const EMPTY_ANSWERS: OnboardingAnswers = {
   role: '',
   keywords: [],
   remoteOnly: true,
+  openToRelocation: false,
+  targetCountries: [],
   blockedRegions: [],
   seniority: 'mid',
 };
@@ -58,6 +63,10 @@ export function applyAnswers(base: EditableConfig, answers: OnboardingAnswers): 
       includeKeywords: normalizeTerms(answers.keywords),
       excludeKeywords: AVOID_BY_SENIORITY[answers.seniority],
       remoteOnly: answers.remoteOnly,
+      openToRelocation: answers.openToRelocation,
+      targetCountries: normalizeTerms(answers.targetCountries)
+        .filter(isCountryCode)
+        .map((code) => code.toUpperCase()),
       blockedRegions: normalizeTerms(answers.blockedRegions),
     },
   };

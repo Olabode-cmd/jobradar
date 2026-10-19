@@ -27,5 +27,14 @@ def load_phrase_bank() -> dict[str, Any]:
     return _load("phrase_bank.json")
 
 
+def load_relocation_phrases() -> dict[str, list[str]]:
+    return load_phrase_bank()["relocation"]
+
+
+def load_countries() -> dict[str, dict[str, Any]]:
+    """Country code -> how each country-aware source spells it. Add a country here, not in a driver."""
+    return _load("countries.json")
+
+
 def load_ats_hosts() -> list[str]:
     return _load("ats_hosts.json")

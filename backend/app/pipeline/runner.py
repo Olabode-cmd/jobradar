@@ -11,6 +11,8 @@ from ..config import AppConfig
 from ..core.errors import ConflictError
 from ..db import open_db
 from ..db.repositories import health_state, run_lock, runs
+from ..data import load_countries
+from ..domain.profile import require_profile
 from ..llm import LlmError, create_client, load_llm_settings
 from ..sources import FetchContext, fetch_source, resolve_enabled_sources
 from .ingest import SeenIndex, process_batch
@@ -24,12 +26,31 @@ def _now() -> str:
     return datetime.now(UTC).isoformat()
 
 
+def _relevant(source: dict[str, Any], countries: tuple[str, ...]) -> bool:
+    """Skip sources with nothing to search for this profile instead of reporting them as failures.
+
+    Single-country boards (Japan Dev) need that country among your targets; country-driven
+    sources (`countryKey`) need at least one target country the catalog maps for them.
+    """
+    only_for = source.get("onlyForCountries")
+    if only_for and not any(code in countries for code in only_for):
+        return False
+    key = source.get("countryKey")
+    if key:
+        catalog = load_countries()
+        return any(catalog.get(code, {}).get(key) for code in countries)
+    return True
+
+
 def select_sources(config: AppConfig, only: list[str] | None) -> list[dict[str, Any]]:
+    """Enabled sources worth running for this profile. Raises if the profile isn't filled in yet."""
+    require_profile(config.profile)
+    countries = FetchContext.from_config(config).countries
     sources = resolve_enabled_sources(config)
     if only:
         wanted = set(only)
-        sources = [source for source in sources if source["id"] in wanted]
-    return sources
+        return [source for source in sources if source["id"] in wanted]
+    return [source for source in sources if _relevant(source, countries)]
 
 
 def begin_run(conn: sqlite3.Connection, trigger: str, force: bool = False) -> tuple[int, str]:
@@ -67,6 +88,7 @@ def execute_run(
     """Fetch in parallel, store sequentially. The caller holds the run lock; it is always released here."""
     per_source: dict[str, dict[str, Any]] = {}
     try:
+        require_profile(config.profile)
         profile = {**config.profile, "blockedCompanies": config.companies.get("blocked", [])}
         ctx = FetchContext.from_config(config)
         index = SeenIndex.from_db(conn)
@@ -130,12 +152,13 @@ def run_fetch(
     trigger: str = "cli",
 ) -> dict[str, Any]:
     """Run a full fetch synchronously (the CLI path). Returns a summary."""
+    sources = select_sources(config, only)  # checks the profile before any lock or network work
     conn = open_db()
     try:
         try:
             run_id, started = begin_run(conn, trigger, force)
         except ConflictError as exc:
             return {"status": "blocked", "message": str(exc)}
-        return execute_run(conn, config, run_id, started, select_sources(config, only), dry_run)
+        return execute_run(conn, config, run_id, started, sources, dry_run)
     finally:
         conn.close()

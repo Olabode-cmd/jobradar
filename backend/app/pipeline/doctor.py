@@ -5,13 +5,14 @@ from __future__ import annotations
 from typing import Any
 
 from ..config import AppConfig
-from ..sources import FetchContext, fetch_source, resolve_enabled_sources
+from ..sources import FetchContext, fetch_source
+from .runner import select_sources
 
 
 def run_doctor(config: AppConfig) -> list[dict[str, Any]]:
     ctx = FetchContext.from_config(config)
     rows: list[dict[str, Any]] = []
-    for source in resolve_enabled_sources(config):
+    for source in select_sources(config, None):
         result = fetch_source(source, ctx)
         rows.append(
             {

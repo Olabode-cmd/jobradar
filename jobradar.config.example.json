@@ -1,10 +1,12 @@
 {
   "profile": {
-    "role": "Software engineer",
+    "role": "",
     "includeKeywords": [],
     "excludeKeywords": [],
     "rejectedPhrases": [],
     "remoteOnly": true,
+    "openToRelocation": false,
+    "targetCountries": [],
     "blockedRegions": [],
     "timezonesOverlap": null,
     "minSalary": null,

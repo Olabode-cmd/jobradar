@@ -2,6 +2,7 @@ import { SectionPanel } from '../../components/ui/section-panel';
 import { TagInput } from '../../components/ui/tag-input';
 import { TextField } from '../../components/ui/text-field';
 import { ToggleField } from '../../components/ui/toggle-field';
+import { COUNTRY_SUGGESTIONS } from '../../lib/countries';
 import type { DraftErrors, ProfileDraft } from '../../lib/profile-draft';
 import { REGION_SUGGESTIONS } from '../../lib/regions';
 import type { SetDraftField } from './use-profile-editor';
@@ -50,6 +51,21 @@ export function ProfileForm({ draft, errors, setField }: ProfileFormProps) {
           description="Hide jobs that aren't remote."
           checked={draft.remoteOnly}
           onChange={(value) => setField('remoteOnly', value)}
+        />
+        <ToggleField
+          label="Open to relocating"
+          description="Also show on-site jobs, but only when the employer offers relocation help."
+          checked={draft.openToRelocation}
+          onChange={(value) => setField('openToRelocation', value)}
+        />
+        <TagInput
+          label="Countries to search in"
+          value={draft.targetCountries}
+          onChange={(value) => setField('targetCountries', value)}
+          placeholder="DE"
+          hint="Two-letter codes. Indeed, Wellfound and Relocate.me search only these countries and are skipped while this is empty."
+          error={errors.targetCountries}
+          suggestions={COUNTRY_SUGGESTIONS}
         />
         <TagInput
           label="Regions you can't work in"

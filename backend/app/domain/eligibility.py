@@ -13,6 +13,7 @@ from typing import Any
 
 from ..data import load_phrase_bank
 from .dates import parse_datetime
+from .relocation import job_offers_relocation
 from .salary import annual_salary_range
 
 # With no keyword in the title, the description has to mention this many distinct keywords
@@ -64,8 +65,13 @@ def evaluate(job: dict[str, Any], profile: dict[str, Any]) -> tuple[str, str | N
         if _contains(title, keyword):
             return "restricted", f"title contains \"{keyword}\""
 
-    if profile.get("remoteOnly") and not job.get("remote_status"):
-        return "restricted", "not remote"
+    if not job.get("remote_status"):
+        if profile.get("openToRelocation"):
+            # On-site is fine only when the employer pays to move you, whatever "remote only" says.
+            if not job_offers_relocation(job):
+                return "restricted", "on-site without relocation support"
+        elif profile.get("remoteOnly"):
+            return "restricted", "not remote"
 
     max_age = profile.get("maxAgeDays")
     if max_age and job.get("posted_at"):
